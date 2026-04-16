@@ -63,10 +63,11 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
 .field select option{background:var(--surface2)}
 .field textarea{resize:vertical;min-height:68px}
-.tipo-selector{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tipo-selector{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .tipo-btn{padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border);cursor:pointer;font-family:var(--font-mono);font-size:12px;font-weight:500;transition:all .2s;background:none;color:var(--text-muted)}
 .tipo-btn.entrada.active{background:var(--green-dim);border-color:var(--green);color:var(--green)}
 .tipo-btn.salida.active{background:var(--red-dim);border-color:var(--red);color:var(--red)}
+.tipo-btn.transferencia.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold)}
 .tipo-btn:not(.active):hover{border-color:var(--text-dim);color:var(--text-dim)}
 .form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap}
 .btn-primary{padding:12px 26px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font-mono);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
@@ -95,6 +96,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .tx-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .tx-icon.entrada{background:var(--green-dim)}
 .tx-icon.salida{background:var(--red-dim)}
+.tx-icon.transferencia{background:var(--gold-dim)}
 .tx-info{min-width:0}
 .tx-desc{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tx-meta{font-size:11px;color:var(--text-muted);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -103,6 +105,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .tx-amount .amount{font-family:var(--font-display);font-size:15px;font-weight:700;white-space:nowrap}
 .tx-amount .amount.entrada{color:var(--green)}
 .tx-amount .amount.salida{color:var(--red)}
+.tx-amount .amount.transferencia{color:var(--gold)}
 .tx-amount .tx-date{font-size:10px;color:var(--text-muted);margin-top:3px}
 .tx-actions{display:flex;gap:5px;opacity:0;transition:opacity .2s;flex-shrink:0}
 .tx-item:hover .tx-actions{opacity:1}
@@ -385,8 +388,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
     <div class="field" style="margin-bottom:16px">
       <label>Tipo</label>
       <div class="tipo-selector">
-        <button class="tipo-btn entrada" id="edit_btn_entrada" onclick="setEditTipo('entrada')">↑ Entrada</button>
-        <button class="tipo-btn salida"  id="edit_btn_salida"  onclick="setEditTipo('salida')">↓ Salida</button>
+        <button class="tipo-btn entrada" id="edit_btn_entrada" onclick="setEditTipo('entrada')">↑ Ingreso</button>
+        <button class="tipo-btn salida"  id="edit_btn_salida"  onclick="setEditTipo('salida')">↓ Gasto</button>
+        <button class="tipo-btn transferencia" id="edit_btn_transferencia" onclick="setEditTipo('transferencia')">⇄ Transferencia</button>
       </div>
     </div>
     <div class="modal-grid" style="margin-bottom:14px">
@@ -605,9 +609,11 @@ function renderTabs(){
 }
 
 // ════ BALANCE ════
+// Regla: salida resta; entrada Y transferencia suman al saldo.
+// La diferencia es que transferencia NO cuenta como ingreso en reportes.
 function getBalance(id){
   let b=(S.accounts[id]?.balance)||0;
-  Object.values(S.transactions).filter(t=>t.accountId===id).forEach(t=>{ b+=t.tipo==='entrada'?t.monto:-t.monto; });
+  Object.values(S.transactions).filter(t=>t.accountId===id).forEach(t=>{ b+=t.tipo==='salida'?-t.monto:t.monto; });
   return b;
 }
 // Balance de una cuenta al final de una fecha dada (inclusive, formato 'YYYY-MM-DD')
@@ -615,7 +621,7 @@ function getBalanceAsOf(accId, dateStr){
   let b=(S.accounts[accId]?.balance)||0;
   Object.values(S.transactions)
     .filter(t=>t.accountId===accId && t.date && t.date<=dateStr)
-    .forEach(t=>{ b+=t.tipo==='entrada'?t.monto:-t.monto; });
+    .forEach(t=>{ b+=t.tipo==='salida'?-t.monto:t.monto; });
   return b;
 }
 
@@ -650,8 +656,9 @@ function renderAccount(c,id){
       <div class="field" style="margin-bottom:16px">
         <label>Tipo</label>
         <div class="tipo-selector">
-          <button class="tipo-btn entrada ${S.tipo==='entrada'?'active':''}" onclick="setTipo('entrada')">↑ Entrada</button>
-          <button class="tipo-btn salida  ${S.tipo==='salida' ?'active':''}" onclick="setTipo('salida')">↓ Salida</button>
+          <button class="tipo-btn entrada ${S.tipo==='entrada'?'active':''}" onclick="setTipo('entrada')">↑ Ingreso</button>
+          <button class="tipo-btn salida  ${S.tipo==='salida' ?'active':''}" onclick="setTipo('salida')">↓ Gasto</button>
+          <button class="tipo-btn transferencia ${S.tipo==='transferencia'?'active':''}" onclick="setTipo('transferencia')">⇄ Transferencia</button>
         </div>
       </div>
       <div class="form-grid">
@@ -672,14 +679,16 @@ function renderAccount(c,id){
 }
 
 function txHTML(id,t){
+  const icon = t.tipo==='entrada'?'↑' : t.tipo==='salida'?'↓' : '⇄';
+  const sign = t.tipo==='entrada'?'+' : t.tipo==='salida'?'-' : '⇄';
   return `<div class="tx-item">
-    <div class="tx-icon ${t.tipo}">${t.tipo==='entrada'?'↑':'↓'}</div>
+    <div class="tx-icon ${t.tipo}">${icon}</div>
     <div class="tx-info">
       <div class="tx-desc">${t.desc||'(sin descripción)'}</div>
       <div class="tx-meta">${t.entity?`<span>${t.entity}</span>`:''}<span class="tx-cat">${t.cat||''}</span>${t.notes?`<span>${t.notes}</span>`:''}</div>
     </div>
     <div class="tx-amount">
-      <div class="amount ${t.tipo}">${t.tipo==='entrada'?'+':'-'}${fmt(t.monto)}</div>
+      <div class="amount ${t.tipo}">${sign}${fmt(t.monto)}</div>
       <div class="tx-date">${t.date||''}</div>
     </div>
     <div class="tx-actions">
@@ -697,6 +706,7 @@ function renderSummary(c){
   let totalBal=0; sel.forEach(id=>{ totalBal+=getBalance(id); });
   const ent=txs.filter(t=>t.tipo==='entrada').reduce((s,t)=>s+t.monto,0);
   const sal=txs.filter(t=>t.tipo==='salida').reduce((s,t)=>s+t.monto,0);
+  const transf=txs.filter(t=>t.tipo==='transferencia').reduce((s,t)=>s+t.monto,0);
   const catMap={};
   txs.filter(t=>t.tipo==='salida').forEach(t=>{ catMap[t.cat||'Otro']=(catMap[t.cat||'Otro']||0)+t.monto; });
   const cats=Object.entries(catMap).sort(([,a],[,b])=>b-a);
@@ -719,9 +729,10 @@ function renderSummary(c){
     </div>
     <div class="summary-grid">
       <div class="stat-card"><div class="stat-card-label">Patrimonio ${S.summaryFilter.length?'filtrado':'total'}</div><div class="stat-card-value accent">${fmt(totalBal)}</div><div class="stat-card-sub">Cuentas seleccionadas</div></div>
-      <div class="stat-card"><div class="stat-card-label">Total entradas</div><div class="stat-card-value green">${fmt(ent)}</div></div>
-      <div class="stat-card"><div class="stat-card-label">Total salidas</div><div class="stat-card-value red">${fmt(sal)}</div></div>
-      <div class="stat-card"><div class="stat-card-label">Flujo neto</div><div class="stat-card-value ${ent-sal>=0?'green':'red'}">${fmt(ent-sal)}</div></div>
+      <div class="stat-card"><div class="stat-card-label">Ingresos reales</div><div class="stat-card-value green">${fmt(ent)}</div><div class="stat-card-sub">Excluye transferencias</div></div>
+      <div class="stat-card"><div class="stat-card-label">Gastos reales</div><div class="stat-card-value red">${fmt(sal)}</div></div>
+      <div class="stat-card"><div class="stat-card-label">Flujo neto real</div><div class="stat-card-value ${ent-sal>=0?'green':'red'}">${fmt(ent-sal)}</div></div>
+      ${transf>0?`<div class="stat-card"><div class="stat-card-label">Transferencias</div><div class="stat-card-value gold">${fmt(transf)}</div><div class="stat-card-sub">Movimientos internos / ahorros</div></div>`:''}
     </div>
     <div class="section-label" style="margin-bottom:14px">Saldo por cuenta</div>
     <div class="accounts-overview" style="margin-bottom:28px">
@@ -750,14 +761,17 @@ function getMonthStats(year, month){
     const d = new Date(t.date+'T00:00:00');
     return d.getFullYear()===year && d.getMonth()===month;
   });
-  const entradas = txs.filter(t=>t.tipo==='entrada').reduce((s,t)=>s+t.monto,0);
-  const salidas  = txs.filter(t=>t.tipo==='salida').reduce((s,t)=>s+t.monto,0);
+  // Ingresos reales = solo tipo 'entrada' (nómina, freelance, pagos externos)
+  // Transferencias = movimientos propios o ahorros externos → NO cuentan como ingreso en reportes
+  const entradas      = txs.filter(t=>t.tipo==='entrada').reduce((s,t)=>s+t.monto,0);
+  const salidas       = txs.filter(t=>t.tipo==='salida').reduce((s,t)=>s+t.monto,0);
+  const transferencias= txs.filter(t=>t.tipo==='transferencia').reduce((s,t)=>s+t.monto,0);
   const neto = entradas - salidas;
   const savingsRate = entradas>0 ? ((entradas-salidas)/entradas*100) : 0;
   const catMap={};
   txs.filter(t=>t.tipo==='salida').forEach(t=>{ catMap[t.cat||'Otro']=(catMap[t.cat||'Otro']||0)+t.monto; });
   const topCats = Object.entries(catMap).sort(([,a],[,b])=>b-a);
-  return { txs, entradas, salidas, neto, savingsRate, topCats, catMap };
+  return { txs, entradas, salidas, transferencias, neto, savingsRate, topCats, catMap };
 }
 
 // Retorna los últimos N meses con datos (o vacíos)
@@ -789,9 +803,12 @@ function getAllMonthsWithData(){
 // Health score logic
 function calcHealthScore(stats, prevStats){
   let score=100;
-  const {entradas,salidas,savingsRate}=stats;
-  if(entradas===0&&salidas===0) return {grade:'—',label:'Sin datos',insights:['Sin movimientos este mes.'],score:0};
-  if(salidas>entradas) score-=40;
+  const {entradas,salidas,savingsRate,transferencias}=stats;
+  // Sin ningún movimiento real
+  if(entradas===0&&salidas===0&&(transferencias||0)===0) return {grade:'—',label:'Sin datos',insights:['Sin movimientos este mes.'],score:0};
+  // Si hay gastos pero no ingresos reales, penalizar (viviendo de transferencias/ahorros)
+  if(entradas===0&&salidas>0) score-=30;
+  else if(salidas>entradas) score-=40;
   else if(savingsRate<10) score-=20;
   else if(savingsRate<25) score-=8;
   if(prevStats&&prevStats.salidas>0){
@@ -808,7 +825,8 @@ function calcHealthScore(stats, prevStats){
   else if(score>=40){grade='C';label='Necesita atención';}
   else{grade='D';label='Situación crítica';}
   const insights=[];
-  if(entradas===0) insights.push('⚠️ No registraste ingresos este mes.');
+  if(entradas===0&&stats.transferencias>0) insights.push(`ℹ️ Sin ingresos laborales. Solo transferencias (${fmt(stats.transferencias)}) que no cuentan como ingreso real.`);
+  else if(entradas===0) insights.push('⚠️ No registraste ingresos reales este mes.');
   else if(salidas>entradas) insights.push(`🔴 Gastaste ${fmt(salidas-entradas)} más de lo que ingresaste.`);
   else insights.push(`✅ Ahorraste ${fmt(entradas-salidas)} (${savingsRate.toFixed(1)}% de tus ingresos).`);
   if(topCat) insights.push(`📌 Tu mayor gasto fue en <strong>${topCat[0]}</strong>: ${fmt(topCat[1])} (${salidas>0?(topCat[1]/salidas*100).toFixed(1):0}% del total).`);
@@ -821,7 +839,8 @@ function calcHealthScore(stats, prevStats){
   return {grade,label,insights,score};
 }
 
-// Build SVG trend bars (entradas vs salidas, últimos 6 meses)
+// Build SVG trend bars (ingresos reales vs gastos, últimos 6 meses)
+// Las transferencias NO se incluyen en las barras verdes para no inflar ingresos
 function buildTrendSVG(months){
   const W=Math.max(months.length*70,400), H=120;
   const maxVal=Math.max(...months.map(m=>Math.max(m.stats.entradas,m.stats.salidas)),1);
@@ -992,9 +1011,10 @@ function renderReportes(c){
     <!-- KPI CARDS -->
     <div class="kpi-row">
       <div class="kpi-card k-income">
-        <div class="kpi-label">Ingresos del mes</div>
+        <div class="kpi-label">Ingresos reales del mes</div>
         <div class="kpi-value green">${fmt(cur.entradas)}</div>
         ${deltaHtml(entDelta)}
+        ${cur.transferencias>0?`<div style="font-size:10px;color:var(--gold);margin-top:4px">+ ${fmt(cur.transferencias)} en transferencias (excluidas)</div>`:''}
       </div>
       <div class="kpi-card k-expense">
         <div class="kpi-label">Gastos del mes</div>
@@ -1048,18 +1068,20 @@ function renderReportes(c){
       <div>
         <div class="section-label" style="margin-bottom:14px">Movimientos del mes (${cur.txs.length})</div>
         <div class="tx-list" style="max-height:360px;overflow-y:auto">
-          ${cur.txs.length?cur.txs.sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(t=>
-            `<div class="tx-item" style="grid-template-columns:36px 1fr auto">
-              <div class="tx-icon ${t.tipo}" style="width:32px;height:32px;font-size:13px">${t.tipo==='entrada'?'↑':'↓'}</div>
+          ${cur.txs.length?cur.txs.sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(t=>{
+            const icon=t.tipo==='entrada'?'↑':t.tipo==='salida'?'↓':'⇄';
+            const sign=t.tipo==='entrada'?'+':t.tipo==='salida'?'-':'⇄';
+            return `<div class="tx-item" style="grid-template-columns:36px 1fr auto">
+              <div class="tx-icon ${t.tipo}" style="width:32px;height:32px;font-size:13px">${icon}</div>
               <div class="tx-info">
                 <div class="tx-desc">${t.desc||'(sin descripción)'}</div>
                 <div class="tx-meta"><span class="tx-cat">${t.cat||''}</span><span>${t.date||''}</span></div>
               </div>
               <div class="tx-amount">
-                <div class="amount ${t.tipo}" style="font-size:13px">${t.tipo==='entrada'?'+':'-'}${fmt(t.monto)}</div>
+                <div class="amount ${t.tipo}" style="font-size:13px">${sign}${fmt(t.monto)}</div>
               </div>
-            </div>`
-          ).join(''):'<div class="empty-state" style="padding:30px"><div class="emoji">📭</div>Sin movimientos este mes</div>'}
+            </div>`;
+          }).join(''):'<div class="empty-state" style="padding:30px"><div class="emoji">📭</div>Sin movimientos este mes</div>'}
         </div>
       </div>
     </div>
@@ -1072,10 +1094,11 @@ function renderReportes(c){
         <thead>
           <tr>
             <th>Mes</th>
-            <th>Ingresos</th>
+            <th>Ingresos reales</th>
             <th>Gastos</th>
             <th>Neto</th>
-            <th>Ahorro</th>
+            <th>Tasa ahorro</th>
+            <th>Transferencias</th>
             <th>vs anterior</th>
             <th>Mov.</th>
           </tr>
@@ -1098,6 +1121,7 @@ function renderReportes(c){
               <td class="tbl-red">${fmt(ms.salidas)}</td>
               <td class="${ms.neto>=0?'tbl-green':'tbl-red'}">${fmt(ms.neto)}</td>
               <td>${ms.entradas>0?ms.savingsRate.toFixed(1)+'%':'—'}</td>
+              <td style="color:var(--gold)">${ms.transferencias>0?fmt(ms.transferencias):'—'}</td>
               <td><span class="tbl-delta ${deltaClass}">${deltaLabel}</span></td>
               <td style="color:var(--text-muted)">${ms.txs.length}</td>
             </tr>`;
@@ -1228,8 +1252,9 @@ window.openEditTx = function(id){
 
 window.setEditTipo = function(t){
   S.editTxTipo=t;
-  document.getElementById('edit_btn_entrada').className='tipo-btn entrada'+(t==='entrada'?' active':'');
-  document.getElementById('edit_btn_salida').className ='tipo-btn salida' +(t==='salida' ?' active':'');
+  document.getElementById('edit_btn_entrada').className     ='tipo-btn entrada'     +(t==='entrada'     ?' active':'');
+  document.getElementById('edit_btn_salida').className      ='tipo-btn salida'      +(t==='salida'      ?' active':'');
+  document.getElementById('edit_btn_transferencia').className='tipo-btn transferencia'+(t==='transferencia'?' active':'');
 };
 
 window.saveEditTransaction = async function(){
