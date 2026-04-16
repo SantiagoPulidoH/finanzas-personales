@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -69,6 +69,15 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .tipo-btn.salida.active{background:var(--red-dim);border-color:var(--red);color:var(--red)}
 .tipo-btn.transferencia.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold)}
 .tipo-btn:not(.active):hover{border-color:var(--text-dim);color:var(--text-dim)}
+/* Dirección de transferencia - aparece cuando se selecciona transferencia */
+.transf-dir{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.transf-dir-btn{padding:8px;border-radius:var(--radius-sm);border:1px solid var(--border);cursor:pointer;font-family:var(--font-mono);font-size:11px;transition:all .2s;background:none;color:var(--text-muted)}
+.transf-dir-btn.active-in{background:var(--gold-dim);border-color:var(--gold);color:var(--gold)}
+.transf-dir-btn.active-out{background:var(--orange-dim);border-color:var(--orange);color:var(--orange)}
+.transf-dir-btn:not(.active-in):not(.active-out):hover{border-color:var(--text-dim);color:var(--text-dim)}
+/* transferencia salida = naranja en tx list */
+.tx-icon.transferencia-out{background:var(--orange-dim)}
+.tx-amount .amount.transferencia-out{color:var(--orange)}
 .form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap}
 .btn-primary{padding:12px 26px;background:var(--accent);border:none;border-radius:var(--radius-sm);color:#fff;font-family:var(--font-mono);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
 .btn-primary:hover{opacity:.85;transform:translateY(-1px)}
@@ -392,6 +401,14 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
         <button class="tipo-btn salida"  id="edit_btn_salida"  onclick="setEditTipo('salida')">↓ Gasto</button>
         <button class="tipo-btn transferencia" id="edit_btn_transferencia" onclick="setEditTipo('transferencia')">⇄ Transferencia</button>
       </div>
+      <div id="edit_transf_dir_wrap" style="display:none;margin-top:10px">
+        <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Dirección</div>
+        <div class="transf-dir">
+          <button class="transf-dir-btn" id="edit_dir_in"  onclick="setEditTransfDir('entrada')">↑ Entra a esta cuenta</button>
+          <button class="transf-dir-btn" id="edit_dir_out" onclick="setEditTransfDir('salida')">↓ Sale de esta cuenta</button>
+        </div>
+        <div id="edit_transf_hint" style="font-size:10px;color:var(--text-muted);margin-top:7px;line-height:1.5"></div>
+      </div>
     </div>
     <div class="modal-grid" style="margin-bottom:14px">
       <div class="field"><label>Descripción</label><input id="edit_desc" placeholder="Descripción"></div>
@@ -511,7 +528,8 @@ const S = {
   activeTab: null,
   accounts: {}, transactions: {}, debts: {}, categories: [],
   tipo: 'salida',
-  editTxId: null, editTxTipo: 'salida',
+  transf_dir: 'entrada',   // dirección cuando tipo=transferencia: 'entrada' o 'salida'
+  editTxId: null, editTxTipo: 'salida', editTransfDir: 'entrada',
   editDebtId: null, editDebtTipo: 'me_debe',
   newDebtTipo: 'me_debe',
   editBalanceAcc: null,
@@ -609,19 +627,27 @@ function renderTabs(){
 }
 
 // ════ BALANCE ════
-// Regla: salida resta; entrada Y transferencia suman al saldo.
-// La diferencia es que transferencia NO cuenta como ingreso en reportes.
+// Reglas de saldo:
+//   entrada             → +suma  (ingreso real)
+//   salida              → -resta (gasto real)
+//   transferencia dir=entrada → +suma  (llega plata, no es ingreso en reportes)
+//   transferencia dir=salida  → -resta (sale plata, no es gasto en reportes)
+function txEffect(t){
+  if(t.tipo==='entrada') return t.monto;
+  if(t.tipo==='salida')  return -t.monto;
+  // transferencia: la dirección decide el signo
+  return (t.transf_dir||'entrada')==='salida' ? -t.monto : t.monto;
+}
 function getBalance(id){
   let b=(S.accounts[id]?.balance)||0;
-  Object.values(S.transactions).filter(t=>t.accountId===id).forEach(t=>{ b+=t.tipo==='salida'?-t.monto:t.monto; });
+  Object.values(S.transactions).filter(t=>t.accountId===id).forEach(t=>{ b+=txEffect(t); });
   return b;
 }
-// Balance de una cuenta al final de una fecha dada (inclusive, formato 'YYYY-MM-DD')
 function getBalanceAsOf(accId, dateStr){
   let b=(S.accounts[accId]?.balance)||0;
   Object.values(S.transactions)
     .filter(t=>t.accountId===accId && t.date && t.date<=dateStr)
-    .forEach(t=>{ b+=t.tipo==='salida'?-t.monto:t.monto; });
+    .forEach(t=>{ b+=txEffect(t); });
   return b;
 }
 
@@ -660,6 +686,17 @@ function renderAccount(c,id){
           <button class="tipo-btn salida  ${S.tipo==='salida' ?'active':''}" onclick="setTipo('salida')">↓ Gasto</button>
           <button class="tipo-btn transferencia ${S.tipo==='transferencia'?'active':''}" onclick="setTipo('transferencia')">⇄ Transferencia</button>
         </div>
+        ${S.tipo==='transferencia'?`
+        <div style="margin-top:10px">
+          <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">Dirección de la transferencia</div>
+          <div class="transf-dir">
+            <button class="transf-dir-btn ${S.transf_dir==='entrada'?'active-in':''}" onclick="setTransfDir('entrada')">↑ Entra a esta cuenta</button>
+            <button class="transf-dir-btn ${S.transf_dir==='salida'?'active-out':''}" onclick="setTransfDir('salida')">↓ Sale de esta cuenta</button>
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:7px;line-height:1.5">
+            ${S.transf_dir==='entrada'?'💡 Plata que llega a esta cuenta (ej: retiro de bolsillo, WorldRemit). Suma al saldo pero no cuenta como ingreso.':'💡 Plata que sale hacia otra cuenta tuya (ej: paso a Lulo Bank). Resta del saldo pero no cuenta como gasto.'}
+          </div>
+        </div>`:''}
       </div>
       <div class="form-grid">
         <div class="field"><label>Descripción</label><input id="tx_desc" placeholder="Ej: Compra supermercado"></div>
@@ -679,16 +716,19 @@ function renderAccount(c,id){
 }
 
 function txHTML(id,t){
-  const icon = t.tipo==='entrada'?'↑' : t.tipo==='salida'?'↓' : '⇄';
-  const sign = t.tipo==='entrada'?'+' : t.tipo==='salida'?'-' : '⇄';
+  const isTransfOut = t.tipo==='transferencia' && (t.transf_dir||'entrada')==='salida';
+  const iconClass   = t.tipo==='transferencia' ? (isTransfOut?'transferencia-out':'transferencia') : t.tipo;
+  const icon = t.tipo==='entrada'?'↑' : t.tipo==='salida'?'↓' : (isTransfOut?'↓⇄':'↑⇄');
+  const sign = t.tipo==='entrada'?'+' : t.tipo==='salida'?'-' : (isTransfOut?'-':'+');
+  const amtClass = t.tipo==='transferencia' ? (isTransfOut?'transferencia-out':'transferencia') : t.tipo;
   return `<div class="tx-item">
-    <div class="tx-icon ${t.tipo}">${icon}</div>
+    <div class="tx-icon ${iconClass}">${icon}</div>
     <div class="tx-info">
       <div class="tx-desc">${t.desc||'(sin descripción)'}</div>
       <div class="tx-meta">${t.entity?`<span>${t.entity}</span>`:''}<span class="tx-cat">${t.cat||''}</span>${t.notes?`<span>${t.notes}</span>`:''}</div>
     </div>
     <div class="tx-amount">
-      <div class="amount ${t.tipo}">${sign}${fmt(t.monto)}</div>
+      <div class="amount ${amtClass}">${sign}${fmt(t.monto)}</div>
       <div class="tx-date">${t.date||''}</div>
     </div>
     <div class="tx-actions">
@@ -761,17 +801,19 @@ function getMonthStats(year, month){
     const d = new Date(t.date+'T00:00:00');
     return d.getFullYear()===year && d.getMonth()===month;
   });
-  // Ingresos reales = solo tipo 'entrada' (nómina, freelance, pagos externos)
-  // Transferencias = movimientos propios o ahorros externos → NO cuentan como ingreso en reportes
-  const entradas      = txs.filter(t=>t.tipo==='entrada').reduce((s,t)=>s+t.monto,0);
-  const salidas       = txs.filter(t=>t.tipo==='salida').reduce((s,t)=>s+t.monto,0);
-  const transferencias= txs.filter(t=>t.tipo==='transferencia').reduce((s,t)=>s+t.monto,0);
+  // Solo tipo 'entrada' = ingresos reales (nómina, freelance, pagos externos)
+  // tipo 'transferencia' con cualquier dirección = NO cuenta como ingreso ni gasto en reportes
+  const entradas       = txs.filter(t=>t.tipo==='entrada').reduce((s,t)=>s+t.monto,0);
+  const salidas        = txs.filter(t=>t.tipo==='salida').reduce((s,t)=>s+t.monto,0);
+  const transfEntrada  = txs.filter(t=>t.tipo==='transferencia'&&(t.transf_dir||'entrada')==='entrada').reduce((s,t)=>s+t.monto,0);
+  const transfSalida   = txs.filter(t=>t.tipo==='transferencia'&&(t.transf_dir||'entrada')==='salida').reduce((s,t)=>s+t.monto,0);
+  const transferencias = transfEntrada + transfSalida; // total movido en transferencias
   const neto = entradas - salidas;
   const savingsRate = entradas>0 ? ((entradas-salidas)/entradas*100) : 0;
   const catMap={};
   txs.filter(t=>t.tipo==='salida').forEach(t=>{ catMap[t.cat||'Otro']=(catMap[t.cat||'Otro']||0)+t.monto; });
   const topCats = Object.entries(catMap).sort(([,a],[,b])=>b-a);
-  return { txs, entradas, salidas, transferencias, neto, savingsRate, topCats, catMap };
+  return { txs, entradas, salidas, transferencias, transfEntrada, transfSalida, neto, savingsRate, topCats, catMap };
 }
 
 // Retorna los últimos N meses con datos (o vacíos)
@@ -1069,16 +1111,19 @@ function renderReportes(c){
         <div class="section-label" style="margin-bottom:14px">Movimientos del mes (${cur.txs.length})</div>
         <div class="tx-list" style="max-height:360px;overflow-y:auto">
           ${cur.txs.length?cur.txs.sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(t=>{
-            const icon=t.tipo==='entrada'?'↑':t.tipo==='salida'?'↓':'⇄';
-            const sign=t.tipo==='entrada'?'+':t.tipo==='salida'?'-':'⇄';
+            const isTransfOut=t.tipo==='transferencia'&&(t.transf_dir||'entrada')==='salida';
+            const icon=t.tipo==='entrada'?'↑':t.tipo==='salida'?'↓':(isTransfOut?'↓⇄':'↑⇄');
+            const sign=t.tipo==='entrada'?'+':t.tipo==='salida'?'-':(isTransfOut?'-':'+');
+            const amtCls=t.tipo==='transferencia'?(isTransfOut?'transferencia-out':'transferencia'):t.tipo;
+            const iconCls=t.tipo==='transferencia'?(isTransfOut?'transferencia-out':'transferencia'):t.tipo;
             return `<div class="tx-item" style="grid-template-columns:36px 1fr auto">
-              <div class="tx-icon ${t.tipo}" style="width:32px;height:32px;font-size:13px">${icon}</div>
+              <div class="tx-icon ${iconCls}" style="width:32px;height:32px;font-size:12px">${icon}</div>
               <div class="tx-info">
                 <div class="tx-desc">${t.desc||'(sin descripción)'}</div>
                 <div class="tx-meta"><span class="tx-cat">${t.cat||''}</span><span>${t.date||''}</span></div>
               </div>
               <div class="tx-amount">
-                <div class="amount ${t.tipo}" style="font-size:13px">${sign}${fmt(t.monto)}</div>
+                <div class="amount ${amtCls}" style="font-size:13px">${sign}${fmt(t.monto)}</div>
               </div>
             </div>`;
           }).join(''):'<div class="empty-state" style="padding:30px"><div class="emoji">📭</div>Sin movimientos este mes</div>'}
@@ -1224,14 +1269,17 @@ window.doLogout = async function(){
   toast('Sesión cerrada','success');
 };
 
-window.setTipo = t=>{ S.tipo=t; renderMain(); };
+window.setTipo = t=>{ S.tipo=t; if(t!=='transferencia') S.transf_dir='entrada'; renderMain(); };
+window.setTransfDir = d=>{ S.transf_dir=d; renderMain(); };
 
 window.saveTx = async function(accId){
   const desc=g('tx_desc'), monto=parseFloat(g('tx_monto'));
   if(!desc){ toast('Agrega una descripción','error'); return; }
   if(!monto||monto<=0){ toast('Monto inválido','error'); return; }
+  const payload={accountId:accId,tipo:S.tipo,desc,entity:g('tx_entity'),cat:g('tx_cat'),monto,date:g('tx_date'),notes:g('tx_notes'),createdAt:Date.now()};
+  if(S.tipo==='transferencia') payload.transf_dir=S.transf_dir;
   setLoad(true);
-  await push(ref(db,'transactions'),{accountId:accId,tipo:S.tipo,desc,entity:g('tx_entity'),cat:g('tx_cat'),monto,date:g('tx_date'),notes:g('tx_notes'),createdAt:Date.now()});
+  await push(ref(db,'transactions'),payload);
   clearForm(); toast('Movimiento registrado ✓','success'); setLoad(false);
 };
 
@@ -1242,7 +1290,9 @@ window.delTx = async function(id){
 
 window.openEditTx = function(id){
   const t=S.transactions[id]; if(!t) return;
-  S.editTxId=id; S.editTxTipo=t.tipo; setEditTipo(t.tipo);
+  S.editTxId=id; S.editTxTipo=t.tipo;
+  S.editTransfDir=t.transf_dir||'entrada';
+  setEditTipo(t.tipo);
   sv('edit_desc',t.desc||''); sv('edit_entity',t.entity||''); sv('edit_monto',t.monto||0);
   sv('edit_date',t.date||today()); sv('edit_notes',t.notes||'');
   const sel=document.getElementById('edit_cat');
@@ -1255,14 +1305,34 @@ window.setEditTipo = function(t){
   document.getElementById('edit_btn_entrada').className     ='tipo-btn entrada'     +(t==='entrada'     ?' active':'');
   document.getElementById('edit_btn_salida').className      ='tipo-btn salida'      +(t==='salida'      ?' active':'');
   document.getElementById('edit_btn_transferencia').className='tipo-btn transferencia'+(t==='transferencia'?' active':'');
+  const wrap=document.getElementById('edit_transf_dir_wrap');
+  if(wrap){
+    wrap.style.display=t==='transferencia'?'block':'none';
+    if(t==='transferencia') updateEditTransfDirUI();
+  }
 };
+window.setEditTransfDir = function(d){
+  S.editTransfDir=d;
+  updateEditTransfDirUI();
+};
+function updateEditTransfDirUI(){
+  const d=S.editTransfDir;
+  const inBtn=document.getElementById('edit_dir_in');
+  const outBtn=document.getElementById('edit_dir_out');
+  const hint=document.getElementById('edit_transf_hint');
+  if(inBtn)  inBtn.className ='transf-dir-btn'+(d==='entrada'?' active-in':'');
+  if(outBtn) outBtn.className='transf-dir-btn'+(d==='salida'?' active-out':'');
+  if(hint)   hint.textContent=d==='entrada'?'💡 Suma al saldo. No cuenta como ingreso.':'💡 Resta del saldo. No cuenta como gasto.';
+}
 
 window.saveEditTransaction = async function(){
   const desc=g('edit_desc'), monto=parseFloat(g('edit_monto'));
   if(!desc){ toast('Agrega descripción','error'); return; }
   if(!monto||monto<=0){ toast('Monto inválido','error'); return; }
   setLoad(true);
-  await update(ref(db,'transactions/'+S.editTxId),{tipo:S.editTxTipo,desc,entity:g('edit_entity'),cat:g('edit_cat'),monto,date:g('edit_date'),notes:g('edit_notes')});
+  const payload={tipo:S.editTxTipo,desc,entity:g('edit_entity'),cat:g('edit_cat'),monto,date:g('edit_date'),notes:g('edit_notes')};
+  if(S.editTxTipo==='transferencia') payload.transf_dir=S.editTransfDir;
+  await update(ref(db,'transactions/'+S.editTxId),payload);
   closeModal('editTxModal'); toast('Movimiento actualizado ✓','success'); setLoad(false);
 };
 
