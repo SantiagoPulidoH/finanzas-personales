@@ -30,6 +30,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .logo-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .header-status{font-size:11px;color:var(--text-muted)}
+.header-action-btn{background:none;border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-family:var(--font-mono);font-size:13px;padding:6px 10px;cursor:pointer;transition:all .2s;flex-shrink:0;white-space:nowrap;line-height:1}
+.header-action-btn:hover{border-color:var(--accent);color:var(--accent)}
+.header-logout-btn:hover{border-color:var(--red);color:var(--red)}
 
 /* ── TABS ── */
 .tabs-wrapper{background:var(--surface);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:2px;overflow-x:auto;scrollbar-width:none;position:relative;z-index:1}
@@ -123,6 +126,20 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .tx-action-btn.del:hover{color:var(--red);background:var(--red-dim)}
 .empty-state{text-align:center;padding:50px 20px;color:var(--text-muted);font-size:13px}
 .empty-state .emoji{font-size:32px;margin-bottom:12px}
+
+/* ── AUTOCOMPLETE ── */
+.autocomplete-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--surface2);border:1px solid var(--accent);border-radius:var(--radius-sm);max-height:240px;overflow-y:auto;z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,.4);margin-top:2px}
+.autocomplete-dropdown.show{display:block}
+.autocomplete-item{padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .12s;font-size:12px}
+.autocomplete-item:last-child{border-bottom:none}
+.autocomplete-item:hover,.autocomplete-item.selected{background:var(--accent-glow)}
+.autocomplete-item .ac-main{color:var(--text);font-weight:500}
+.autocomplete-item .ac-sub{font-size:10px;color:var(--text-muted);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
+.autocomplete-item .ac-tag{padding:1px 7px;border-radius:10px;background:var(--surface);font-size:9px}
+.autocomplete-empty{padding:10px 12px;font-size:11px;color:var(--text-muted);text-align:center}
+
+/* ── DUPLICATE WARN BADGE ── */
+.dup-warn-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;background:var(--gold-dim);border:1px solid var(--gold);color:var(--gold);font-size:9px;margin-left:6px;font-weight:500}
 
 /* ── SUMMARY ── */
 .summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(210px,100%),1fr));gap:16px;margin-bottom:28px}
@@ -452,9 +469,11 @@ img,svg,table{max-width:100%}
 
 <header class="header">
   <div class="header-logo"><div class="logo-dot"></div>Flujo<span>CO</span></div>
-  <div style="display:flex;align-items:center;gap:10px;min-width:0;overflow:hidden">
-    <div class="header-status" id="syncStatus" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">conectando...</div>
-    <button onclick="doLogout()" title="Cerrar sesión" style="background:none;border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-family:var(--font-mono);font-size:11px;padding:5px 10px;cursor:pointer;transition:all .2s;flex-shrink:0;white-space:nowrap" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">↩ Salir</button>
+  <div style="display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden">
+    <div class="header-status" id="syncStatus" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;margin-right:6px">conectando...</div>
+    <button onclick="openBackupModal()" title="Backup / Restaurar" class="header-action-btn">💾</button>
+    <button onclick="openPdfModal()" title="Exportar PDF" class="header-action-btn">📄</button>
+    <button onclick="doLogout()" title="Cerrar sesión" class="header-action-btn header-logout-btn">↩</button>
   </div>
 </header>
 
@@ -591,6 +610,75 @@ img,svg,table{max-width:100%}
   </div>
 </div>
 
+<!-- ════════ FORGOT PASSWORD ════════ -->
+<div class="modal-overlay" id="forgotPasswordModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-title">Recuperar contraseña</div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.6">Ingresa el correo asociado a tu cuenta. Recibirás un enlace para restablecer la contraseña. <strong style="color:var(--gold)">Tus datos no se pierden</strong> — solo cambias la contraseña de acceso.</p>
+    <div class="field"><label>Correo electrónico</label><input id="forgot_email" type="email" placeholder="tu@correo.com" autocomplete="email"></div>
+    <div id="forgot_msg" style="font-size:11px;margin-top:10px;line-height:1.5"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('forgotPasswordModal')">Cancelar</button>
+      <button class="btn-primary" id="forgot_btn" onclick="sendResetEmail()">Enviar enlace</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ BACKUP / RESTORE ════════ -->
+<div class="modal-overlay" id="backupModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-title">💾 Backup y Restauración</div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:18px;line-height:1.6">Exporta toda tu información a un archivo JSON local (cuentas, transacciones, deudas, categorías). Puedes restaurarla después si pierdes acceso o quieres deshacer cambios.</p>
+
+    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:16px;margin-bottom:14px;border-left:3px solid var(--accent)">
+      <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Resumen actual</div>
+      <div id="backupStats" style="font-size:12px;line-height:1.8"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <button class="btn-primary" style="background:var(--green)" onclick="exportBackup()">⬇ Descargar JSON</button>
+      <button class="btn-outline" onclick="document.getElementById('restoreFileInput').click()">⬆ Restaurar JSON</button>
+    </div>
+    <input type="file" id="restoreFileInput" accept=".json,application/json" style="display:none" onchange="handleRestoreFile(event)">
+
+    <div id="restoreInfo" style="font-size:11px;line-height:1.6;color:var(--text-muted);margin-top:8px"></div>
+
+    <div style="margin-top:16px;padding:14px;background:var(--gold-dim);border:1px solid var(--gold);border-radius:var(--radius-sm);font-size:11px;color:var(--text-dim);line-height:1.6">
+      ⚠️ <strong style="color:var(--gold)">Importante:</strong> Restaurar reemplaza completamente la información actual. Descarga primero un backup antes de restaurar otro.
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="closeModal('backupModal')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ PDF EXPORT ════════ -->
+<div class="modal-overlay" id="pdfModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-title">📄 Exportar reporte PDF</div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.6">Genera un reporte completo en PDF con todo tu estado financiero. Útil para análisis externo, contabilidad o respaldo impreso.</p>
+
+    <div class="field" style="margin-bottom:12px">
+      <label>Tipo de reporte</label>
+      <select id="pdf_type">
+        <option value="full">Reporte completo (todo el historial)</option>
+        <option value="month">Mes específico</option>
+        <option value="ytd">Año en curso</option>
+      </select>
+    </div>
+    <div class="field" id="pdf_month_field" style="display:none;margin-bottom:12px">
+      <label>Mes / Año (formato AAAA-MM)</label>
+      <input id="pdf_month" type="month">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('pdfModal')">Cancelar</button>
+      <button class="btn-primary" onclick="generatePDF()">Generar PDF</button>
+    </div>
+  </div>
+</div>
+
 <!-- ════════ LOGIN SCREEN ════════ -->
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
@@ -606,6 +694,9 @@ img,svg,table{max-width:100%}
     </div>
     <button class="login-btn" id="loginBtn" onclick="doLogin()">Iniciar sesión</button>
     <div class="login-error" id="loginError"></div>
+    <div style="margin-top:14px;text-align:center">
+      <a href="#" onclick="event.preventDefault();openForgotPasswordModal()" style="font-size:11px;color:var(--accent);text-decoration:none;font-family:var(--font-mono)">¿Olvidaste tu contraseña?</a>
+    </div>
     <div class="login-divider"></div>
     <div class="login-footer">Acceso privado · Solo uso personal</div>
   </div>
@@ -619,7 +710,7 @@ img,svg,table{max-width:100%}
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getDatabase, ref, set, push, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 let db = null;
 let auth = null;
@@ -798,20 +889,35 @@ function renderAccount(c,id){
         </div>`:''}
       </div>
       <div class="form-grid">
-        <div class="field"><label>Descripción</label><input id="tx_desc" placeholder="Ej: Compra supermercado"></div>
-        <div class="field"><label>Empresa / Persona</label><input id="tx_entity" placeholder="Ej: Éxito, Juan Pérez"></div>
+        <div class="field" style="position:relative">
+          <label>Descripción</label>
+          <input id="tx_desc" placeholder="Ej: Compra supermercado" autocomplete="off" oninput="onDescInput()" onfocus="onDescInput()" onblur="setTimeout(hideAutocomplete,150)">
+          <div class="autocomplete-dropdown" id="tx_desc_ac"></div>
+        </div>
+        <div class="field" style="position:relative">
+          <label>Empresa / Persona</label>
+          <input id="tx_entity" placeholder="Ej: Éxito, Juan Pérez" autocomplete="off" oninput="onEntityInput()" onfocus="onEntityInput()" onblur="setTimeout(hideAutocomplete,150)">
+          <div class="autocomplete-dropdown" id="tx_entity_ac"></div>
+        </div>
         <div class="field"><label>Categoría</label><select id="tx_cat">${S.categories.map(c=>`<option>${c}</option>`).join('')}</select></div>
-        <div class="field"><label>Monto (COP)</label><input id="tx_monto" type="number" placeholder="0" min="0"></div>
+        <div class="field">
+          <label>Monto (COP)</label>
+          <input id="tx_monto" type="number" placeholder="0" min="0" oninput="onMontoInput()">
+          <div id="tx_monto_warn" style="font-size:10px;color:var(--gold);margin-top:4px;display:none"></div>
+        </div>
         <div class="field"><label>Fecha</label><input id="tx_date" type="date" value="${today()}"></div>
         <div class="field"><label>Notas (opcional)</label><textarea id="tx_notes" placeholder="Detalles adicionales..."></textarea></div>
       </div>
       <div class="form-actions">
         <button class="btn-cancel" onclick="clearForm()">Limpiar</button>
-        <button class="btn-primary" onclick="saveTx('${id}')">Registrar movimiento</button>
+        <button class="btn-primary" onclick="saveTx('${id}')" title="Atajo: Ctrl+Enter">Registrar movimiento</button>
       </div>
     </div>
-    <div class="section-label">Movimientos (${txs.length})</div>
-    <div class="tx-list">${txs.length?txs.map(([id,t])=>txHTML(id,t)).join(''):'<div class="empty-state"><div class="emoji">📋</div>Sin movimientos aún.</div>'}</div>`;
+    <div class="section-label" style="display:flex;align-items:center;gap:10px">
+      <span>Movimientos (${txs.length})</span>
+      <input type="text" id="tx_search_${id}" placeholder="🔍 Buscar..." oninput="filterTxList(this,'${id}')" style="margin-left:auto;flex:0 1 240px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-mono);font-size:11px;padding:6px 12px;outline:none">
+    </div>
+    <div class="tx-list" id="tx_list_${id}">${txs.length?txs.map(([tid,t])=>txHTML(tid,t)).join(''):'<div class="empty-state"><div class="emoji">📋</div>Sin movimientos aún.</div>'}</div>`;
 }
 
 function txHTML(id,t){
@@ -1337,6 +1443,534 @@ function debtHTML(id,d){
 //  WINDOW ACTIONS
 // ═══════════════════════════════════
 
+// ════ AUTOCOMPLETE INTELIGENTE ════
+
+// Construye índice de descripciones únicas con categoría/monto/entidad más frecuentes
+function buildDescIndex(){
+  const txs = Object.values(S.transactions);
+  const map = {}; // descNormalizada -> {desc:original, count, cats:{cat:n}, entities:{e:n}, montos:[], tipo, transf_dir}
+  txs.forEach(t=>{
+    if(!t.desc) return;
+    const key = t.desc.trim().toLowerCase();
+    if(!key) return;
+    if(!map[key]) map[key] = {desc:t.desc.trim(), count:0, cats:{}, entities:{}, montos:[], tipos:{}};
+    const m = map[key];
+    m.count++;
+    if(t.cat) m.cats[t.cat] = (m.cats[t.cat]||0)+1;
+    if(t.entity) m.entities[t.entity] = (m.entities[t.entity]||0)+1;
+    if(t.monto) m.montos.push(t.monto);
+    if(t.tipo) m.tipos[t.tipo] = (m.tipos[t.tipo]||0)+1;
+  });
+  return Object.values(map).map(m=>{
+    const topCat    = Object.entries(m.cats).sort(([,a],[,b])=>b-a)[0]?.[0]||'';
+    const topEntity = Object.entries(m.entities).sort(([,a],[,b])=>b-a)[0]?.[0]||'';
+    const topTipo   = Object.entries(m.tipos).sort(([,a],[,b])=>b-a)[0]?.[0]||'';
+    const avgMonto  = m.montos.length ? Math.round(m.montos.reduce((s,n)=>s+n,0)/m.montos.length) : 0;
+    return { desc:m.desc, count:m.count, cat:topCat, entity:topEntity, monto:avgMonto, tipo:topTipo };
+  }).sort((a,b)=>b.count-a.count);
+}
+
+function buildEntityIndex(){
+  const txs = Object.values(S.transactions);
+  const map = {};
+  txs.forEach(t=>{
+    if(!t.entity) return;
+    const key = t.entity.trim().toLowerCase();
+    if(!key) return;
+    if(!map[key]) map[key] = {entity:t.entity.trim(), count:0, cats:{}};
+    map[key].count++;
+    if(t.cat) map[key].cats[t.cat] = (map[key].cats[t.cat]||0)+1;
+  });
+  return Object.values(map).map(m=>({
+    entity:m.entity, count:m.count,
+    cat: Object.entries(m.cats).sort(([,a],[,b])=>b-a)[0]?.[0]||''
+  })).sort((a,b)=>b.count-a.count);
+}
+
+window.onDescInput = function(){
+  const inp = document.getElementById('tx_desc');
+  const dd  = document.getElementById('tx_desc_ac');
+  if(!inp || !dd) return;
+  const q = inp.value.trim().toLowerCase();
+  const idx = buildDescIndex();
+  // Si vacío: mostrar top 8 más usados; si tiene query: filtrar
+  let matches = q ? idx.filter(x=>x.desc.toLowerCase().includes(q)) : idx;
+  matches = matches.slice(0,8);
+  if(!matches.length){ dd.classList.remove('show'); return; }
+  dd.innerHTML = matches.map(m=>`
+    <div class="autocomplete-item" onmousedown="selectDescSuggestion('${escapeAttr(m.desc)}','${escapeAttr(m.cat)}','${escapeAttr(m.entity)}',${m.monto})">
+      <div class="ac-main">${escapeHTML(m.desc)}</div>
+      <div class="ac-sub">
+        ${m.cat?`<span class="ac-tag">${escapeHTML(m.cat)}</span>`:''}
+        ${m.entity?`<span>👤 ${escapeHTML(m.entity)}</span>`:''}
+        ${m.monto?`<span>💵 ~${fmt(m.monto)}</span>`:''}
+        <span style="margin-left:auto">×${m.count}</span>
+      </div>
+    </div>`).join('');
+  dd.classList.add('show');
+};
+
+window.selectDescSuggestion = function(desc, cat, entity, monto){
+  sv('tx_desc', desc);
+  if(cat){
+    const sel = document.getElementById('tx_cat');
+    if(sel && [...sel.options].some(o=>o.value===cat)) sel.value = cat;
+  }
+  if(entity && !g('tx_entity')) sv('tx_entity', entity);
+  if(monto && !g('tx_monto')) sv('tx_monto', monto);
+  hideAutocomplete();
+  // Trigger duplicate check
+  setTimeout(checkDuplicate, 50);
+};
+
+window.onEntityInput = function(){
+  const inp = document.getElementById('tx_entity');
+  const dd  = document.getElementById('tx_entity_ac');
+  if(!inp || !dd) return;
+  const q = inp.value.trim().toLowerCase();
+  const idx = buildEntityIndex();
+  let matches = q ? idx.filter(x=>x.entity.toLowerCase().includes(q)) : idx;
+  matches = matches.slice(0,8);
+  if(!matches.length){ dd.classList.remove('show'); return; }
+  dd.innerHTML = matches.map(m=>`
+    <div class="autocomplete-item" onmousedown="selectEntitySuggestion('${escapeAttr(m.entity)}','${escapeAttr(m.cat)}')">
+      <div class="ac-main">${escapeHTML(m.entity)}</div>
+      <div class="ac-sub">
+        ${m.cat?`<span class="ac-tag">${escapeHTML(m.cat)}</span>`:''}
+        <span style="margin-left:auto">×${m.count}</span>
+      </div>
+    </div>`).join('');
+  dd.classList.add('show');
+};
+
+window.selectEntitySuggestion = function(entity, cat){
+  sv('tx_entity', entity);
+  if(cat){
+    const sel = document.getElementById('tx_cat');
+    if(sel && !sel.value && [...sel.options].some(o=>o.value===cat)) sel.value = cat;
+  }
+  hideAutocomplete();
+};
+
+window.hideAutocomplete = function(){
+  document.querySelectorAll('.autocomplete-dropdown').forEach(el=>el.classList.remove('show'));
+};
+
+// Validación de monto atípico (mayor que 3x el promedio de la categoría seleccionada)
+window.onMontoInput = function(){
+  const m = parseFloat(g('tx_monto'));
+  const warn = document.getElementById('tx_monto_warn');
+  if(!warn) return;
+  warn.style.display='none';
+  if(!m || m<=0) return;
+  // Atípico: > 5M
+  if(m > 5000000){
+    warn.textContent = `⚠️ Monto inusualmente alto (${fmt(m)}). Verifica antes de guardar.`;
+    warn.style.display='block';
+    return;
+  }
+  // Comparar con promedio de la categoría
+  const cat = g('tx_cat');
+  if(cat){
+    const sameCat = Object.values(S.transactions).filter(t=>t.cat===cat && t.tipo===S.tipo);
+    if(sameCat.length>=3){
+      const avg = sameCat.reduce((s,t)=>s+t.monto,0)/sameCat.length;
+      if(m > avg*4){
+        warn.textContent = `⚠️ Es 4× mayor que tu promedio en "${cat}" (${fmt(Math.round(avg))}). Verifica.`;
+        warn.style.display='block';
+      }
+    }
+  }
+  // Trigger duplicate check después de modificar monto
+  setTimeout(checkDuplicate, 50);
+};
+
+// Detección de posible duplicado: misma desc + monto + tipo + fecha cercana (<=2 días)
+function checkDuplicate(){
+  const desc  = g('tx_desc').trim().toLowerCase();
+  const monto = parseFloat(g('tx_monto'));
+  const date  = g('tx_date');
+  const warn  = document.getElementById('tx_monto_warn');
+  if(!warn || !desc || !monto || !date) return;
+  // Solo si no hay otra warn más prioritaria
+  if(warn.textContent.startsWith('⚠️ Monto')) return;
+  const targetTime = new Date(date+'T00:00:00').getTime();
+  const dups = Object.values(S.transactions).filter(t=>{
+    if(!t.date || !t.desc) return false;
+    if(t.tipo !== S.tipo) return false;
+    if(t.desc.trim().toLowerCase() !== desc) return false;
+    if(Math.abs(t.monto - monto) > 1) return false;
+    const diff = Math.abs(new Date(t.date+'T00:00:00').getTime() - targetTime);
+    return diff <= 2*86400000;
+  });
+  if(dups.length > 0){
+    warn.innerHTML = `⚠️ Posible duplicado: ya tienes "${escapeHTML(dups[0].desc)}" por ${fmt(dups[0].monto)} el ${dups[0].date}. Puedes guardar igual si es correcto.`;
+    warn.style.display='block';
+    warn.style.color='var(--orange)';
+  } else if(warn.style.color==='var(--orange)' || warn.innerHTML.includes('duplicado')){
+    warn.style.display='none';
+    warn.style.color='var(--gold)';
+  }
+}
+
+// Filtro de búsqueda en lista de movimientos
+window.filterTxList = function(input, accId){
+  const q = input.value.trim().toLowerCase();
+  const list = document.getElementById('tx_list_'+accId);
+  if(!list) return;
+  const items = list.querySelectorAll('.tx-item');
+  let visible = 0;
+  items.forEach(it=>{
+    const text = it.textContent.toLowerCase();
+    const match = !q || text.includes(q);
+    it.style.display = match ? '' : 'none';
+    if(match) visible++;
+  });
+};
+
+// Helpers de escape
+function escapeHTML(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escapeAttr(s){ return String(s||'').replace(/['"\\]/g,'\\$&'); }
+
+// ════ BACKUP / RESTORE ════
+window.openBackupModal = function(){
+  const txCount   = Object.keys(S.transactions).length;
+  const accCount  = Object.keys(S.accounts).length;
+  const debtCount = Object.keys(S.debts).length;
+  const catCount  = S.categories.length;
+  const totalBal  = Object.keys(S.accounts).reduce((s,id)=>s+getBalance(id),0);
+  document.getElementById('backupStats').innerHTML = `
+    <div>📋 <strong>${txCount}</strong> movimientos registrados</div>
+    <div>🏦 <strong>${accCount}</strong> cuentas activas</div>
+    <div>💼 <strong>${debtCount}</strong> deudas</div>
+    <div>🏷️ <strong>${catCount}</strong> categorías</div>
+    <div style="margin-top:8px;color:var(--accent)">💰 Patrimonio total: <strong>${fmt(totalBal)}</strong></div>
+  `;
+  document.getElementById('restoreInfo').innerHTML = '';
+  openModal('backupModal');
+};
+
+window.exportBackup = function(){
+  const data = {
+    version: 'flujo-co-v7',
+    exportedAt: new Date().toISOString(),
+    user: auth.currentUser?.email || 'unknown',
+    accounts: S.accounts,
+    transactions: S.transactions,
+    debts: S.debts,
+    categories: S.categories,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = `flujo-co-backup-${date}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Backup descargado ✓','success');
+};
+
+window.handleRestoreFile = function(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      // Validación básica
+      if(!data.accounts || !data.transactions){
+        document.getElementById('restoreInfo').innerHTML = '<span style="color:var(--red)">❌ Archivo inválido. Falta accounts o transactions.</span>';
+        return;
+      }
+      const txCount  = Object.keys(data.transactions||{}).length;
+      const accCount = Object.keys(data.accounts||{}).length;
+      const debtCount= Object.keys(data.debts||{}).length;
+      const catCount = (data.categories||[]).length;
+      const exportedAt = data.exportedAt ? new Date(data.exportedAt).toLocaleString('es-CO') : 'fecha desconocida';
+      const ok = confirm(
+        `Vas a restaurar:\n\n` +
+        `• ${txCount} movimientos\n` +
+        `• ${accCount} cuentas\n` +
+        `• ${debtCount} deudas\n` +
+        `• ${catCount} categorías\n\n` +
+        `Backup creado: ${exportedAt}\n\n` +
+        `⚠️ Esto REEMPLAZA toda la información actual. ¿Continuar?`
+      );
+      if(!ok){
+        document.getElementById('restoreInfo').innerHTML = '<span style="color:var(--text-muted)">Restauración cancelada.</span>';
+        event.target.value = '';
+        return;
+      }
+      doRestore(data, event);
+    } catch(err) {
+      document.getElementById('restoreInfo').innerHTML = `<span style="color:var(--red)">❌ Error leyendo el archivo: ${err.message}</span>`;
+    }
+  };
+  reader.readAsText(file);
+};
+
+async function doRestore(data, event){
+  setLoad(true);
+  try {
+    const updates = {};
+    updates['accounts'] = data.accounts || {};
+    updates['transactions'] = data.transactions || {};
+    updates['debts'] = data.debts || {};
+    updates['categories'] = data.categories || [];
+    await update(ref(db), updates);
+    document.getElementById('restoreInfo').innerHTML = '<span style="color:var(--green)">✅ Restauración completada. Recargando...</span>';
+    toast('Datos restaurados ✓','success');
+    setTimeout(()=>location.reload(), 1500);
+  } catch(err) {
+    document.getElementById('restoreInfo').innerHTML = `<span style="color:var(--red)">❌ Error al restaurar: ${err.message}</span>`;
+  } finally {
+    setLoad(false);
+    event.target.value = '';
+  }
+}
+
+// ════ PDF EXPORT ════
+window.openPdfModal = function(){
+  const sel = document.getElementById('pdf_type');
+  sel.onchange = ()=>{
+    document.getElementById('pdf_month_field').style.display = sel.value==='month' ? 'block' : 'none';
+  };
+  document.getElementById('pdf_month_field').style.display = 'none';
+  document.getElementById('pdf_month').value = new Date().toISOString().slice(0,7);
+  openModal('pdfModal');
+};
+
+window.generatePDF = function(){
+  const type = document.getElementById('pdf_type').value;
+  const monthVal = document.getElementById('pdf_month').value;
+
+  // Filtrar transacciones según el tipo
+  let title = 'Reporte Financiero Completo';
+  let filteredTxs = Object.entries(S.transactions);
+  let dateRange = 'Histórico completo';
+  let filterYear = null, filterMonth = null;
+
+  if(type==='month' && monthVal){
+    const [y,m] = monthVal.split('-').map(Number);
+    filterYear = y; filterMonth = m-1;
+    title = `Reporte de ${MONTH_NAMES[m-1]} ${y}`;
+    dateRange = `${MONTH_NAMES[m-1]} ${y}`;
+    filteredTxs = filteredTxs.filter(([,t])=>{
+      if(!t.date) return false;
+      const d = new Date(t.date+'T00:00:00');
+      return d.getFullYear()===y && d.getMonth()===m-1;
+    });
+  } else if(type==='ytd'){
+    const y = new Date().getFullYear();
+    filterYear = y;
+    title = `Reporte Año ${y} (en curso)`;
+    dateRange = `Enero - hoy ${y}`;
+    filteredTxs = filteredTxs.filter(([,t])=>{
+      if(!t.date) return false;
+      return new Date(t.date+'T00:00:00').getFullYear()===y;
+    });
+  }
+
+  closeModal('pdfModal');
+  buildAndPrintPDF({title, dateRange, filteredTxs, filterYear, filterMonth});
+};
+
+function buildAndPrintPDF({title, dateRange, filteredTxs, filterYear, filterMonth}){
+  // Calcular totales
+  const txArr = filteredTxs.map(([id,t])=>({id,...t}));
+  const ent  = txArr.filter(t=>t.tipo==='entrada').reduce((s,t)=>s+t.monto,0);
+  const sal  = txArr.filter(t=>t.tipo==='salida').reduce((s,t)=>s+t.monto,0);
+  const tIn  = txArr.filter(t=>t.tipo==='transferencia'&&(t.transf_dir||'entrada')==='entrada').reduce((s,t)=>s+t.monto,0);
+  const tOut = txArr.filter(t=>t.tipo==='transferencia'&&(t.transf_dir||'entrada')==='salida').reduce((s,t)=>s+t.monto,0);
+
+  // Categorías
+  const catMap = {};
+  txArr.filter(t=>t.tipo==='salida').forEach(t=>{ catMap[t.cat||'Otro']=(catMap[t.cat||'Otro']||0)+t.monto; });
+  const sortedCats = Object.entries(catMap).sort(([,a],[,b])=>b-a);
+
+  // Saldos por cuenta (al final del periodo)
+  const accBalances = Object.entries(S.accounts).map(([id,a])=>({
+    id, name:a.name, emoji:a.emoji||'🏦', balance:getBalance(id)
+  }));
+  const totalPatrimonio = accBalances.reduce((s,a)=>s+a.balance,0);
+
+  // Deudas
+  const debts = Object.values(S.debts);
+  const meDeben = debts.filter(d=>d.tipo==='me_debe'&&d.status!=='paid').reduce((s,d)=>s+d.amount,0);
+  const leDebo  = debts.filter(d=>d.tipo==='le_debo'&&d.status!=='paid').reduce((s,d)=>s+d.amount,0);
+
+  // Movimientos ordenados por fecha desc
+  const sortedTxs = txArr.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+
+  const today = new Date().toLocaleDateString('es-CO',{day:'numeric',month:'long',year:'numeric'});
+  const userEmail = auth.currentUser?.email || '';
+
+  const tipoLabel = (t)=>{
+    if(t.tipo==='entrada') return 'Ingreso';
+    if(t.tipo==='salida') return 'Gasto';
+    return (t.transf_dir||'entrada')==='salida' ? 'Transf. salida' : 'Transf. entrada';
+  };
+  const tipoColor = (t)=>{
+    if(t.tipo==='entrada') return '#10b981';
+    if(t.tipo==='salida') return '#ef4444';
+    return (t.transf_dir||'entrada')==='salida' ? '#f97316' : '#f59e0b';
+  };
+  const sign = (t)=> t.tipo==='salida' || (t.tipo==='transferencia' && (t.transf_dir||'entrada')==='salida') ? '-' : '+';
+
+  const html = `
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>${title}</title>
+<style>
+  @page { size: A4; margin: 14mm 12mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; color: #1a1a2e; font-size: 10px; line-height: 1.45; }
+  .doc-header { display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2px solid #1a1a2e; padding-bottom:10px; margin-bottom:18px; }
+  .doc-title { font-size:22px; font-weight:800; letter-spacing:-0.5px; color:#1a1a2e; }
+  .doc-subtitle { font-size:11px; color:#6b6b80; margin-top:3px; }
+  .doc-meta { font-size:9px; color:#6b6b80; text-align:right; }
+  .doc-meta div { margin-bottom:2px; }
+  h2 { font-size:13px; font-weight:700; margin:18px 0 10px; padding-bottom:4px; border-bottom:1px solid #d4d4d8; color:#1a1a2e; }
+  h3 { font-size:11px; font-weight:700; margin:12px 0 6px; color:#52525b; }
+  .kpi-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:14px; }
+  .kpi { border:1px solid #e4e4e7; border-radius:6px; padding:9px 11px; }
+  .kpi-label { font-size:8px; color:#6b6b80; text-transform:uppercase; letter-spacing:0.4px; margin-bottom:3px; }
+  .kpi-value { font-size:13px; font-weight:700; }
+  .kpi.green .kpi-value { color:#059669; }
+  .kpi.red .kpi-value { color:#dc2626; }
+  .kpi.gold .kpi-value { color:#ca8a04; }
+  .kpi.blue .kpi-value { color:#2563eb; }
+  table { width:100%; border-collapse:collapse; font-size:9px; }
+  th { background:#f4f4f5; text-align:left; padding:6px 8px; font-weight:600; font-size:8px; text-transform:uppercase; letter-spacing:0.3px; color:#52525b; border-bottom:1px solid #d4d4d8; }
+  td { padding:5px 8px; border-bottom:1px solid #f4f4f5; vertical-align:top; }
+  tr:nth-child(even) td { background:#fafafa; }
+  .num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .green-text { color:#059669; }
+  .red-text { color:#dc2626; }
+  .orange-text { color:#ea580c; }
+  .gold-text { color:#ca8a04; }
+  .badge { display:inline-block; padding:1px 6px; border-radius:10px; font-size:8px; font-weight:600; }
+  .footer { position:fixed; bottom:6mm; left:12mm; right:12mm; text-align:center; font-size:8px; color:#9ca3af; border-top:1px solid #e4e4e7; padding-top:5px; }
+  .small-table th, .small-table td { padding:4px 6px; }
+  .accounts-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+  .acc-card { border:1px solid #e4e4e7; border-radius:6px; padding:8px 10px; }
+  .acc-card-name { font-size:9px; color:#6b6b80; margin-bottom:2px; text-transform:uppercase; letter-spacing:0.4px; }
+  .acc-card-val { font-size:13px; font-weight:700; color:#1a1a2e; }
+  .cat-bar-row { display:grid; grid-template-columns: 100px 1fr auto auto; gap:8px; align-items:center; padding:3px 0; font-size:9px; }
+  .cat-bar-track { height:5px; background:#f4f4f5; border-radius:3px; overflow:hidden; }
+  .cat-bar-fill { height:100%; background:#dc2626; border-radius:3px; }
+  .cat-pct { font-size:8px; color:#6b6b80; min-width:30px; text-align:right; }
+  .pagebreak { page-break-before: always; }
+  @media print { .no-print { display:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="doc-header">
+  <div>
+    <div class="doc-title">FlujoCO</div>
+    <div class="doc-subtitle">${title}</div>
+  </div>
+  <div class="doc-meta">
+    <div><strong>Periodo:</strong> ${dateRange}</div>
+    <div><strong>Generado:</strong> ${today}</div>
+    <div><strong>Usuario:</strong> ${userEmail}</div>
+    <div><strong>Total movimientos:</strong> ${txArr.length}</div>
+  </div>
+</div>
+
+<h2>Resumen ejecutivo</h2>
+<div class="kpi-grid">
+  <div class="kpi blue"><div class="kpi-label">Patrimonio total</div><div class="kpi-value">${fmt(totalPatrimonio)}</div></div>
+  <div class="kpi green"><div class="kpi-label">Ingresos reales</div><div class="kpi-value">${fmt(ent)}</div></div>
+  <div class="kpi red"><div class="kpi-label">Gastos</div><div class="kpi-value">${fmt(sal)}</div></div>
+  <div class="kpi ${ent-sal>=0?'green':'red'}"><div class="kpi-label">Flujo neto</div><div class="kpi-value">${fmt(ent-sal)}</div></div>
+</div>
+<div class="kpi-grid">
+  <div class="kpi gold"><div class="kpi-label">Transf. entrada</div><div class="kpi-value">${fmt(tIn)}</div></div>
+  <div class="kpi" style="border-color:#fed7aa"><div class="kpi-label" >Transf. salida</div><div class="kpi-value orange-text">${fmt(tOut)}</div></div>
+  <div class="kpi green"><div class="kpi-label">Me deben</div><div class="kpi-value">${fmt(meDeben)}</div></div>
+  <div class="kpi red"><div class="kpi-label">Le debo</div><div class="kpi-value">${fmt(leDebo)}</div></div>
+</div>
+
+<h2>Saldos por cuenta</h2>
+<div class="accounts-grid">
+  ${accBalances.map(a=>`<div class="acc-card"><div class="acc-card-name">${a.emoji} ${a.name}</div><div class="acc-card-val">${fmt(a.balance)}</div></div>`).join('')}
+</div>
+
+${sortedCats.length?`
+<h2>Gastos por categoría</h2>
+<div>
+  ${sortedCats.map(([cat,amt])=>{
+    const pct = sal>0 ? (amt/sal*100) : 0;
+    return `<div class="cat-bar-row">
+      <div>${cat}</div>
+      <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${pct.toFixed(1)}%"></div></div>
+      <div class="num red-text"><strong>${fmt(amt)}</strong></div>
+      <div class="cat-pct">${pct.toFixed(1)}%</div>
+    </div>`;
+  }).join('')}
+</div>`:''}
+
+${debts.length?`
+<h2>Estado de deudas</h2>
+<table class="small-table">
+  <thead><tr><th>Tipo</th><th>Persona/Entidad</th><th>Monto</th><th>Vence</th><th>Estado</th><th>Notas</th></tr></thead>
+  <tbody>
+    ${debts.sort((a,b)=>(a.due||'zzz').localeCompare(b.due||'zzz')).map(d=>`
+      <tr>
+        <td><span class="badge" style="background:${d.tipo==='me_debe'?'#d1fae5':'#fee2e2'};color:${d.tipo==='me_debe'?'#059669':'#dc2626'}">${d.tipo==='me_debe'?'Me deben':'Le debo'}</span></td>
+        <td>${d.name||''}</td>
+        <td class="num"><strong>${fmt(d.amount||0)}</strong></td>
+        <td>${d.due||'-'}</td>
+        <td><span class="badge" style="background:${d.status==='paid'?'#d1fae5':'#fef3c7'};color:${d.status==='paid'?'#059669':'#ca8a04'}">${d.status==='paid'?'Pagada':'Pendiente'}</span></td>
+        <td style="font-size:8px;color:#6b6b80">${d.notes||''}</td>
+      </tr>`).join('')}
+  </tbody>
+</table>`:''}
+
+<div class="pagebreak"></div>
+
+<h2>Detalle de movimientos (${sortedTxs.length})</h2>
+<table>
+  <thead><tr>
+    <th>Fecha</th><th>Tipo</th><th>Cuenta</th><th>Descripción</th>
+    <th>Empresa/Persona</th><th>Categoría</th><th class="num">Monto</th>
+  </tr></thead>
+  <tbody>
+    ${sortedTxs.map(t=>`<tr>
+      <td>${t.date||'-'}</td>
+      <td><span class="badge" style="background:${tipoColor(t)}22;color:${tipoColor(t)}">${tipoLabel(t)}</span></td>
+      <td>${S.accounts[t.accountId]?.name||t.accountId}</td>
+      <td>${(t.desc||'').replace(/</g,'&lt;')}</td>
+      <td>${(t.entity||'').replace(/</g,'&lt;')}</td>
+      <td>${t.cat||'-'}</td>
+      <td class="num" style="color:${tipoColor(t)}"><strong>${sign(t)}${fmt(t.monto||0)}</strong></td>
+    </tr>`).join('')}
+  </tbody>
+</table>
+
+<div class="footer">
+  FlujoCO · Reporte privado · Generado el ${today}
+</div>
+
+<script>
+  window.onload = function(){
+    setTimeout(function(){ window.print(); }, 300);
+  };
+</${'script'}>
+</body></html>`;
+
+  const w = window.open('', '_blank');
+  if(!w){
+    toast('Permite popups para generar el PDF','error');
+    return;
+  }
+  w.document.write(html);
+  w.document.close();
+  toast('Reporte abierto. Usa "Guardar como PDF"','success');
+}
+
 // ════ AUTH ACTIONS ════
 window.doLogin = async function(){
   const email = document.getElementById('login_email').value.trim();
@@ -1368,6 +2002,39 @@ window.doLogout = async function(){
   if(!confirm('¿Cerrar sesión?')) return;
   await signOut(auth);
   toast('Sesión cerrada','success');
+};
+
+window.openForgotPasswordModal = function(){
+  const loginEmail = document.getElementById('login_email')?.value || '';
+  document.getElementById('forgot_email').value = loginEmail;
+  document.getElementById('forgot_msg').textContent = '';
+  document.getElementById('forgot_msg').style.color = '';
+  openModal('forgotPasswordModal');
+};
+
+window.sendResetEmail = async function(){
+  const email = document.getElementById('forgot_email').value.trim();
+  const msgEl = document.getElementById('forgot_msg');
+  const btn = document.getElementById('forgot_btn');
+  if(!email){ msgEl.textContent='Ingresa tu correo.'; msgEl.style.color='var(--red)'; return; }
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  try {
+    await sendPasswordResetEmail(auth, email);
+    msgEl.innerHTML = '✅ Listo. Revisa tu bandeja de entrada y la carpeta de spam. El enlace expira en 1 hora.';
+    msgEl.style.color = 'var(--green)';
+    setTimeout(()=>{ closeModal('forgotPasswordModal'); }, 4000);
+  } catch(e) {
+    const msgs = {
+      'auth/invalid-email':'Correo inválido.',
+      'auth/user-not-found':'No existe una cuenta con ese correo.',
+      'auth/missing-email':'Ingresa tu correo.',
+      'auth/too-many-requests':'Demasiados intentos. Espera unos minutos.',
+    };
+    msgEl.textContent = msgs[e.code] || 'No se pudo enviar el correo. Intenta de nuevo.';
+    msgEl.style.color = 'var(--red)';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Enviar enlace';
+  }
 };
 
 window.setTipo = t=>{ S.tipo=t; if(t!=='transferencia') S.transf_dir='entrada'; renderMain(); };
@@ -1544,7 +2211,13 @@ window.jumpToMonth = function(year,month){
 };
 
 // Helpers
-window.clearForm = function(){ ['tx_desc','tx_entity','tx_notes','tx_monto'].forEach(id=>sv(id,'')); sv('tx_date',today()); };
+window.clearForm = function(){
+  ['tx_desc','tx_entity','tx_notes','tx_monto'].forEach(id=>sv(id,''));
+  sv('tx_date',today());
+  hideAutocomplete();
+  const warn = document.getElementById('tx_monto_warn');
+  if(warn){ warn.style.display='none'; warn.style.color='var(--gold)'; warn.textContent=''; }
+};
 function g(id){ return document.getElementById(id)?.value||''; }
 function sv(id,v){ const el=document.getElementById(id); if(el) el.value=v; }
 function today(){ return new Date().toISOString().split('T')[0]; }
@@ -1558,6 +2231,22 @@ function toast(msg,type=''){
 window.openModal  = id=>document.getElementById(id).classList.add('open');
 window.closeModal = id=>document.getElementById(id).classList.remove('open');
 document.querySelectorAll('.modal-overlay').forEach(o=>{ o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); }); });
+
+// ════ KEYBOARD SHORTCUTS ════
+document.addEventListener('keydown', e=>{
+  // Esc: cerrar cualquier modal abierto y autocomplete
+  if(e.key === 'Escape'){
+    document.querySelectorAll('.modal-overlay.open').forEach(m=>m.classList.remove('open'));
+    hideAutocomplete();
+  }
+  // Ctrl/Cmd + Enter: guardar movimiento si estamos en una pestaña de cuenta
+  if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
+    if(S.activeTab && !['__resumen__','__reportes__','__deudas__'].includes(S.activeTab)){
+      const btn = document.querySelector(`button.btn-primary[onclick^="saveTx"]`);
+      if(btn) { e.preventDefault(); btn.click(); }
+    }
+  }
+});
 
 // ════ FIREBASE INIT ════
 boot({
