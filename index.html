@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Finanzas · DashboardV10</title>
+  <title>Finanzas · DashboardV11</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap"
@@ -547,11 +547,19 @@
         pointer-events: auto !important;
         position: relative;
         z-index: 2;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(124, 106, 245, 0.3);
+        user-select: none;
+        -webkit-user-select: none;
       }
 
       .sidebar-item:hover,
       .sidebar-item.active {
         background: rgba(124, 106, 245, .18)
+      }
+
+      .sidebar-item:active {
+        background: rgba(124, 106, 245, .35) !important;
       }
 
       /* Sidebar BACKDROP debe ir debajo del sidebar pero arriba de todo lo demás */
@@ -3457,7 +3465,7 @@
     <div style="display:flex;align-items:center;gap:10px">
       <button class="mobile-menu-btn" onclick="toggleSidebarMobile()" title="Abrir menú">☰</button>
       <div class="header-logo">
-        <div class="logo-dot"></div>Flujo<span>V10</span>
+        <div class="logo-dot"></div>Flujo<span>V11</span>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden">
@@ -3761,7 +3769,7 @@
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
       <div class="login-logo">
-        <div class="logo-dot"></div>Flujo<span>V10</span>
+        <div class="logo-dot"></div>Flujo<span>V11</span>
       </div>
       <div class="login-subtitle">Ingresa tus credenciales para continuar</div>
       <div class="login-field">
@@ -3898,6 +3906,9 @@
       });
 
       setLoad(true);
+
+      // Wire sidebar event delegation (una sola vez, sobrevive a innerHTML rewrites)
+      wireSidebarDelegation();
     }
 
     // ════ SIDEBAR (formerly tabs) ════
@@ -3925,7 +3936,7 @@
         const a = S.accounts[id]; if (!a) return '';
         const isActive = S.activeTab === id;
         return `
-      <button class="sidebar-item ${isActive ? 'active' : ''}" data-acc-id="${id}" onclick="selectTab('${id}')" draggable="${S.sidebarReordering ? 'true' : 'false'}">
+      <button type="button" class="sidebar-item ${isActive ? 'active' : ''}" data-acc-id="${id}" data-action="select" data-tab="${id}" draggable="${S.sidebarReordering ? 'true' : 'false'}">
         <span class="drag-handle">⋮⋮</span>
         <span class="sidebar-item-icon">${a.emoji || '🏦'}</span>
         <span class="sidebar-item-label">${escapeHTML(a.name)}</span>
@@ -3934,7 +3945,7 @@
       }).join('');
 
       const navHTML = navItems.map(n => `
-    <button class="sidebar-item ${S.activeTab === n.id ? 'active' : ''}" onclick="selectTab('${n.id}')">
+    <button type="button" class="sidebar-item ${S.activeTab === n.id ? 'active' : ''}" data-action="select" data-tab="${n.id}">
       <span class="sidebar-item-icon">${n.icon}</span>
       <span class="sidebar-item-label">${n.label}</span>
     </button>`).join('');
@@ -3943,12 +3954,12 @@
     <div class="sidebar-section ${S.sidebarReordering ? 'reordering' : ''}" id="sidebarAccounts">
       <div class="sidebar-section-label">
         <span>Cuentas</span>
-        <button class="sidebar-reorder-toggle ${S.sidebarReordering ? 'active' : ''}" onclick="toggleReorder()" title="${S.sidebarReordering ? 'Terminar reordenamiento' : 'Reordenar cuentas'}">
+        <button type="button" class="sidebar-reorder-toggle ${S.sidebarReordering ? 'active' : ''}" data-action="reorder" title="${S.sidebarReordering ? 'Terminar reordenamiento' : 'Reordenar cuentas'}">
           ${S.sidebarReordering ? '✓ Listo' : '⇕ Ordenar'}
         </button>
       </div>
       ${accountsHTML || '<div style="font-size:11px;color:var(--text-muted);padding:8px 12px">Sin cuentas aún</div>'}
-      <button class="sidebar-add" onclick="openModal('newAccountModal')"><span>+</span><span class="sidebar-add-text">Nueva cuenta</span></button>
+      <button type="button" class="sidebar-add" data-action="new-account"><span>+</span><span class="sidebar-add-text">Nueva cuenta</span></button>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-section-label"><span>General</span></div>
@@ -3960,21 +3971,41 @@
       if (S.sidebarReordering) {
         setupDragAndDrop();
       }
+    }
 
-      // Backup touch listener: en algunos navegadores Android onclick no dispara
-      // cuando hay transform activo. touchend explícito garantiza el tap.
-      cont.querySelectorAll('button.sidebar-item').forEach(btn => {
-        btn.addEventListener('touchend', function (e) {
-          // Solo si no es un drag y no hubo movimiento
-          if (S.sidebarReordering) return;
-          e.preventDefault();
-          e.stopPropagation();
-          // Disparar el onclick manualmente
-          const handler = btn.getAttribute('onclick');
-          if (handler) {
-            try { (new Function(handler))(); } catch (err) { console.error('[touchend handler]', err); }
-          }
-        }, { passive: false });
+    // ── EVENT DELEGATION para el sidebar ──
+    // Un solo listener en el contenedor estable. Sobrevive a innerHTML rewrites.
+    // Evita los problemas de onclick inline en Android Chrome con position:fixed + transform.
+    function wireSidebarDelegation() {
+      const cont = document.getElementById('sidebarContent');
+      if (!cont || cont._wired) return;
+      cont._wired = true;
+      const handler = function (e) {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        // Si estamos reordenando, solo permitir el botón "reorder" (no seleccionar items mientras se arrastra)
+        if (S.sidebarReordering && btn.dataset.action === 'select') return;
+        e.preventDefault();
+        e.stopPropagation();
+        const action = btn.dataset.action;
+        if (action === 'select') {
+          window.selectTab(btn.dataset.tab);
+        } else if (action === 'reorder') {
+          window.toggleReorder();
+        } else if (action === 'new-account') {
+          window.openModal('newAccountModal');
+        }
+      };
+      cont.addEventListener('click', handler);
+      // Backup: en algunos Android Chrome, click no dispara con sidebar transformado.
+      // pointerup es más confiable y no tiene los problemas de touchend+preventDefault.
+      cont.addEventListener('pointerup', function (e) {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        // Solo si fue tap directo (no drag/scroll)
+        if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+          handler(e);
+        }
       });
     }
 
