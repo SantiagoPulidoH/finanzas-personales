@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Finanzas · Dashboard V8</title>
+  <title>Finanzas · DashboardV9</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap"
@@ -58,6 +58,14 @@
       pointer-events: none;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
       opacity: .4
+    }
+
+    body.sidebar-locked {
+      overflow: hidden
+    }
+
+    body.sidebar-locked::before {
+      display: none
     }
 
     /* ── HEADER ── */
@@ -426,25 +434,51 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, .6);
-      z-index: 90;
-      backdrop-filter: blur(4px)
+      background: rgba(0, 0, 0, .75);
+      z-index: 140;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px)
     }
 
     .sidebar-backdrop.open {
-      display: block
+      display: block;
+      animation: fadeIn .2s ease
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
     }
 
     @media (max-width: 768px) {
+
+      /* Sidebar como drawer sólido */
       .sidebar {
         position: fixed;
         left: 0;
-        top: 60px;
-        height: calc(100vh - 60px);
-        z-index: 95;
-        width: 260px;
+        top: 0;
+        height: 100vh;
+        height: 100dvh;
+        z-index: 150;
+        width: 280px;
+        max-width: 85vw;
         transform: translateX(-100%);
-        box-shadow: 8px 0 32px rgba(0, 0, 0, .5)
+        box-shadow: 8px 0 40px rgba(0, 0, 0, .7);
+        background: #1a1a24 !important;
+        background-color: #1a1a24 !important;
+        border-right: 1px solid var(--accent);
+        padding-top: 60px;
+        isolation: isolate;
+      }
+
+      .sidebar>* {
+        position: relative;
+        z-index: 1
       }
 
       .sidebar.mobile-open {
@@ -452,7 +486,7 @@
       }
 
       .sidebar.collapsed {
-        width: 260px;
+        width: 280px;
         transform: translateX(-100%)
       }
 
@@ -460,9 +494,12 @@
         transform: translateX(0)
       }
 
-      .sidebar.collapsed .sidebar-item-label,
-      .sidebar.collapsed .sidebar-item-balance {
+      .sidebar.collapsed .sidebar-item-label {
         display: flex !important
+      }
+
+      .sidebar.collapsed .sidebar-item-balance {
+        display: none
       }
 
       .sidebar.collapsed .sidebar-item {
@@ -484,6 +521,27 @@
 
       .sidebar-item-balance {
         display: none
+      }
+
+      /* Header sigue arriba */
+      .header {
+        z-index: 160
+      }
+
+      /* Body content debajo */
+      .main {
+        position: relative;
+        z-index: 1
+      }
+
+      /* Items más visibles en drawer */
+      .sidebar-item {
+        background: transparent
+      }
+
+      .sidebar-item:hover,
+      .sidebar-item.active {
+        background: rgba(124, 106, 245, .12)
       }
     }
 
@@ -2846,11 +2904,7 @@
       }
 
       .header-status {
-        font-size: 10px;
-        max-width: 120px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap
+        display: none
       }
 
       /* Forms */
@@ -3097,6 +3151,168 @@
         max-width: none;
         text-align: center
       }
+
+      /* ── BUDGET PANEL mobile ── */
+      .budget-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px
+      }
+
+      .budget-month-nav {
+        justify-content: center
+      }
+
+      .budget-month-nav input {
+        width: 120px;
+        font-size: 12px
+      }
+
+      .budget-summary-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px
+      }
+
+      .budget-row {
+        grid-template-columns: 1fr;
+        padding: 14px;
+        gap: 8px
+      }
+
+      .budget-row-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px
+      }
+
+      .budget-input-row {
+        width: 100%;
+        justify-content: flex-end
+      }
+
+      .budget-input-row input {
+        flex: 1;
+        width: auto;
+        max-width: 200px
+      }
+
+      .budget-section-title {
+        font-size: 12px
+      }
+
+      .budget-help {
+        font-size: 10px;
+        padding: 12px
+      }
+
+      .budget-cat-name {
+        font-size: 12px
+      }
+
+      .budget-numbers {
+        font-size: 11px
+      }
+
+      /* ── RECURRING PANEL mobile ── */
+      .recurring-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px
+      }
+
+      .recurring-summary-grid {
+        grid-template-columns: 1fr;
+        gap: 10px
+      }
+
+      .recurring-grid {
+        grid-template-columns: 1fr
+      }
+
+      .recurring-card {
+        padding: 14px
+      }
+
+      .recurring-amount {
+        font-size: 18px
+      }
+
+      .recurring-section-title {
+        font-size: 12px
+      }
+
+      .suggestion-card {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 12px
+      }
+
+      .suggestion-actions {
+        justify-content: stretch
+      }
+
+      .suggestion-actions .btn-xs {
+        flex: 1;
+        text-align: center
+      }
+
+      /* Match prompt */
+      .match-prompt {
+        left: 12px;
+        right: 12px;
+        bottom: 14px;
+        max-width: none;
+        padding: 14px 16px
+      }
+
+      .match-prompt-title {
+        font-size: 13px
+      }
+
+      .match-prompt-body {
+        font-size: 11px
+      }
+
+      /* Modales con scroll */
+      .modal {
+        max-height: 90vh;
+        overflow-y: auto
+      }
+
+      /* Header buttons compactos */
+      .header-action-btn {
+        padding: 5px 8px;
+        font-size: 12px
+      }
+
+      /* Sidebar items en mobile drawer */
+      .sidebar-item {
+        font-size: 13px;
+        padding: 12px 14px;
+        min-height: 44px
+      }
+
+      .sidebar-item-icon {
+        font-size: 15px
+      }
+
+      .sidebar-section-label {
+        font-size: 10px;
+        padding: 0 14px 8px
+      }
+
+      .sidebar-add {
+        padding: 12px;
+        margin: 12px 14px;
+        width: calc(100% - 28px);
+        font-size: 12px
+      }
+
+      .sidebar-toggle,
+      #sidebar .sidebar-toggle {
+        display: none !important
+      }
     }
 
     /* ══════════════════════════════════════
@@ -3150,6 +3366,19 @@
 
       .modal-grid {
         grid-template-columns: 1fr
+      }
+
+      /* Budget tablet */
+      .budget-summary-grid {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .recurring-summary-grid {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .recurring-grid {
+        grid-template-columns: 1fr 1fr
       }
     }
 
@@ -3690,7 +3919,10 @@
 
     window.selectTab = function (id) {
       S.activeTab = id;
-      if (window.innerWidth <= 768) S.sidebarMobileOpen = false;
+      if (window.innerWidth <= 768) {
+        S.sidebarMobileOpen = false;
+        document.body.classList.remove('sidebar-locked');
+      }
       renderSidebar();
       renderMain();
     };
@@ -3703,8 +3935,18 @@
 
     window.toggleSidebarMobile = function (force) {
       S.sidebarMobileOpen = (typeof force === 'boolean') ? force : !S.sidebarMobileOpen;
+      document.body.classList.toggle('sidebar-locked', S.sidebarMobileOpen);
       renderSidebar();
     };
+
+    // Cleanup on resize: si el usuario rota o pasa a desktop, limpia estado de mobile drawer
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768 && S.sidebarMobileOpen) {
+        S.sidebarMobileOpen = false;
+        document.body.classList.remove('sidebar-locked');
+        renderSidebar();
+      }
+    });
 
     window.toggleReorder = function () {
       S.sidebarReordering = !S.sidebarReordering;
