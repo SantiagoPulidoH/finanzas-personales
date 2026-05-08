@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Finanzas · DashboardV11</title>
+  <title>Finanzas · DashboardV12</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap"
@@ -455,125 +455,212 @@
 
     @media (max-width: 768px) {
 
-      /* Sidebar como drawer sólido — z-index ALTO, pointer events forzados */
+      /* En mobile, el sidebar lateral se oculta — usamos bottom sheet */
       .sidebar {
-        position: fixed !important;
-        left: 0 !important;
-        top: 0 !important;
-        bottom: 0 !important;
-        height: 100vh;
-        height: 100dvh;
-        z-index: 9000 !important;
-        width: 280px;
-        max-width: 85vw;
-        transform: translateX(-100%);
-        box-shadow: 8px 0 40px rgba(0, 0, 0, .8);
-        background: #16161e !important;
-        border-right: 2px solid var(--accent);
-        padding-top: 60px;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        pointer-events: auto !important;
-      }
-
-      .sidebar.mobile-open {
-        transform: translateX(0) !important
-      }
-
-      /* Override desktop "collapsed": en mobile siempre full width al abrir */
-      .sidebar.collapsed {
-        width: 280px;
-        max-width: 85vw;
-        transform: translateX(-100%);
-      }
-
-      .sidebar.collapsed.mobile-open {
-        transform: translateX(0) !important
-      }
-
-      .sidebar.collapsed .sidebar-item-label {
-        display: flex !important
-      }
-
-      .sidebar.collapsed .sidebar-item-balance {
-        display: none
-      }
-
-      .sidebar.collapsed .sidebar-item {
-        justify-content: flex-start;
-        padding: 10px 12px
-      }
-
-      .sidebar.collapsed .sidebar-add-text {
-        display: inline !important
-      }
-
-      .sidebar-toggle {
-        display: none !important
-      }
-
-      .app-shell {
-        display: block
-      }
-
-      /* Scroll dentro del drawer */
-      #sidebarContent {
-        flex: 1;
-        overflow-y: auto;
-        overflow-x: hidden;
-        -webkit-overflow-scrolling: touch;
-        pointer-events: auto !important;
-      }
-
-      .sidebar-item-balance {
-        display: none
-      }
-
-      /* Header sigue arriba */
-      .header {
-        z-index: 9100 !important;
-      }
-
-      /* Body content debajo */
-      .main {
-        position: relative;
-        z-index: 1
-      }
-
-      /* Items con fondo opaco al interactuar */
-      .sidebar-item {
-        background: transparent;
-        pointer-events: auto !important;
-        position: relative;
-        z-index: 2;
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: rgba(124, 106, 245, 0.3);
-        user-select: none;
-        -webkit-user-select: none;
-      }
-
-      .sidebar-item:hover,
-      .sidebar-item.active {
-        background: rgba(124, 106, 245, .18)
-      }
-
-      .sidebar-item:active {
-        background: rgba(124, 106, 245, .35) !important;
-      }
-
-      /* Sidebar BACKDROP debe ir debajo del sidebar pero arriba de todo lo demás */
-      .sidebar-backdrop {
-        z-index: 8500 !important;
-      }
-
-      /* Cuando el sidebar está abierto, oculta el ruido del body y bloquea cualquier sticky */
-      body.sidebar-locked::before {
         display: none !important;
       }
 
-      body.sidebar-locked .sticky-action-bar,
-      body.sidebar-locked .match-prompt {
+      .sidebar-backdrop {
+        display: none !important;
+      }
+
+      .app-shell {
+        display: block;
+      }
+    }
+
+    /* ═══════════════════════════════════════
+       BOTTOM SHEET — menú mobile
+       Diseño limpio: aparece desde abajo, sin transform en padre,
+       sin position:fixed con left/right complicados.
+       ═══════════════════════════════════════ */
+    .menu-sheet-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .65);
+      z-index: 9000;
+    }
+
+    .menu-sheet-backdrop.open {
+      display: block;
+      animation: fadeIn .2s ease;
+    }
+
+    .menu-sheet {
+      display: none;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      max-height: 85vh;
+      background: #1a1a24;
+      border-top: 1px solid var(--accent);
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 -8px 32px rgba(0, 0, 0, .6);
+      z-index: 9100;
+      flex-direction: column;
+    }
+
+    .menu-sheet.open {
+      display: flex;
+      animation: sheetSlideUp .25s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    @keyframes sheetSlideUp {
+      from {
+        transform: translateY(100%);
+      }
+
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    .menu-sheet-grip {
+      width: 44px;
+      height: 4px;
+      background: var(--text-muted);
+      border-radius: 4px;
+      margin: 12px auto 8px;
+      flex-shrink: 0;
+      opacity: .4;
+    }
+
+    .menu-sheet-header {
+      padding: 6px 20px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .menu-sheet-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .menu-sheet-close {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 16px;
+      cursor: pointer;
+      line-height: 1;
+      -webkit-tap-highlight-color: rgba(124, 106, 245, .4);
+    }
+
+    .menu-sheet-body {
+      overflow-y: auto;
+      overflow-x: hidden;
+      flex: 1;
+      padding: 8px 12px 24px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .menu-sheet-section-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 14px 8px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 600;
+    }
+
+    .menu-sheet-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 500;
+      background: none;
+      border: none;
+      text-align: left;
+      width: 100%;
+      min-height: 52px;
+      transition: background .15s;
+      -webkit-tap-highlight-color: rgba(124, 106, 245, .4);
+    }
+
+    .menu-sheet-item:active {
+      background: rgba(124, 106, 245, .25);
+    }
+
+    .menu-sheet-item.active {
+      background: var(--accent-glow);
+      color: var(--accent);
+    }
+
+    .menu-sheet-item-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+      width: 24px;
+      text-align: center;
+    }
+
+    .menu-sheet-item-label {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .menu-sheet-item-balance {
+      font-size: 11px;
+      color: var(--text-muted);
+      background: var(--surface);
+      padding: 3px 9px;
+      border-radius: 12px;
+      font-weight: 400;
+      flex-shrink: 0;
+    }
+
+    .menu-sheet-item.active .menu-sheet-item-balance {
+      background: rgba(124, 106, 245, .2);
+      color: var(--accent);
+    }
+
+    .menu-sheet-add {
+      margin: 8px 0;
+      padding: 14px;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      background: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-family: var(--font-mono);
+      width: 100%;
+      cursor: pointer;
+      -webkit-tap-highlight-color: rgba(124, 106, 245, .4);
+    }
+
+    .menu-sheet-add:active {
+      background: rgba(124, 106, 245, .15);
+    }
+
+    /* Solo permitir bottom sheet en mobile */
+    @media (min-width: 769px) {
+
+      .menu-sheet,
+      .menu-sheet-backdrop {
         display: none !important;
       }
     }
@@ -3463,9 +3550,9 @@
 
   <header class="header">
     <div style="display:flex;align-items:center;gap:10px">
-      <button class="mobile-menu-btn" onclick="toggleSidebarMobile()" title="Abrir menú">☰</button>
+      <button class="mobile-menu-btn" onclick="openMenuSheet()" title="Abrir menú">☰</button>
       <div class="header-logo">
-        <div class="logo-dot"></div>Flujo<span>V11</span>
+        <div class="logo-dot"></div>Flujo<span>V12</span>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden">
@@ -3480,6 +3567,17 @@
 
   <div class="tabs-wrapper" id="tabsWrapper" style="display:none"></div>
   <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebarMobile(false)"></div>
+
+  <!-- ════════ BOTTOM SHEET MENU (mobile) ════════ -->
+  <div class="menu-sheet-backdrop" id="menuSheetBackdrop" onclick="closeMenuSheet()"></div>
+  <div class="menu-sheet" id="menuSheet" role="dialog" aria-label="Menú">
+    <div class="menu-sheet-grip"></div>
+    <div class="menu-sheet-header">
+      <div class="menu-sheet-title">Menú</div>
+      <button class="menu-sheet-close" onclick="closeMenuSheet()" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="menu-sheet-body" id="menuSheetBody"></div>
+  </div>
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <button class="sidebar-toggle" onclick="toggleSidebar()" title="Colapsar/Expandir sidebar">
@@ -3769,7 +3867,7 @@
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
       <div class="login-logo">
-        <div class="logo-dot"></div>Flujo<span>V11</span>
+        <div class="logo-dot"></div>Flujo<span>V12</span>
       </div>
       <div class="login-subtitle">Ingresa tus credenciales para continuar</div>
       <div class="login-field">
@@ -3906,9 +4004,6 @@
       });
 
       setLoad(true);
-
-      // Wire sidebar event delegation (una sola vez, sobrevive a innerHTML rewrites)
-      wireSidebarDelegation();
     }
 
     // ════ SIDEBAR (formerly tabs) ════
@@ -3936,7 +4031,7 @@
         const a = S.accounts[id]; if (!a) return '';
         const isActive = S.activeTab === id;
         return `
-      <button type="button" class="sidebar-item ${isActive ? 'active' : ''}" data-acc-id="${id}" data-action="select" data-tab="${id}" draggable="${S.sidebarReordering ? 'true' : 'false'}">
+      <button class="sidebar-item ${isActive ? 'active' : ''}" data-acc-id="${id}" onclick="selectTab('${id}')" draggable="${S.sidebarReordering ? 'true' : 'false'}">
         <span class="drag-handle">⋮⋮</span>
         <span class="sidebar-item-icon">${a.emoji || '🏦'}</span>
         <span class="sidebar-item-label">${escapeHTML(a.name)}</span>
@@ -3945,7 +4040,7 @@
       }).join('');
 
       const navHTML = navItems.map(n => `
-    <button type="button" class="sidebar-item ${S.activeTab === n.id ? 'active' : ''}" data-action="select" data-tab="${n.id}">
+    <button class="sidebar-item ${S.activeTab === n.id ? 'active' : ''}" onclick="selectTab('${n.id}')">
       <span class="sidebar-item-icon">${n.icon}</span>
       <span class="sidebar-item-label">${n.label}</span>
     </button>`).join('');
@@ -3954,12 +4049,12 @@
     <div class="sidebar-section ${S.sidebarReordering ? 'reordering' : ''}" id="sidebarAccounts">
       <div class="sidebar-section-label">
         <span>Cuentas</span>
-        <button type="button" class="sidebar-reorder-toggle ${S.sidebarReordering ? 'active' : ''}" data-action="reorder" title="${S.sidebarReordering ? 'Terminar reordenamiento' : 'Reordenar cuentas'}">
+        <button class="sidebar-reorder-toggle ${S.sidebarReordering ? 'active' : ''}" onclick="toggleReorder()" title="${S.sidebarReordering ? 'Terminar reordenamiento' : 'Reordenar cuentas'}">
           ${S.sidebarReordering ? '✓ Listo' : '⇕ Ordenar'}
         </button>
       </div>
       ${accountsHTML || '<div style="font-size:11px;color:var(--text-muted);padding:8px 12px">Sin cuentas aún</div>'}
-      <button type="button" class="sidebar-add" data-action="new-account"><span>+</span><span class="sidebar-add-text">Nueva cuenta</span></button>
+      <button class="sidebar-add" onclick="openModal('newAccountModal')"><span>+</span><span class="sidebar-add-text">Nueva cuenta</span></button>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-section-label"><span>General</span></div>
@@ -3971,42 +4066,6 @@
       if (S.sidebarReordering) {
         setupDragAndDrop();
       }
-    }
-
-    // ── EVENT DELEGATION para el sidebar ──
-    // Un solo listener en el contenedor estable. Sobrevive a innerHTML rewrites.
-    // Evita los problemas de onclick inline en Android Chrome con position:fixed + transform.
-    function wireSidebarDelegation() {
-      const cont = document.getElementById('sidebarContent');
-      if (!cont || cont._wired) return;
-      cont._wired = true;
-      const handler = function (e) {
-        const btn = e.target.closest('button[data-action]');
-        if (!btn) return;
-        // Si estamos reordenando, solo permitir el botón "reorder" (no seleccionar items mientras se arrastra)
-        if (S.sidebarReordering && btn.dataset.action === 'select') return;
-        e.preventDefault();
-        e.stopPropagation();
-        const action = btn.dataset.action;
-        if (action === 'select') {
-          window.selectTab(btn.dataset.tab);
-        } else if (action === 'reorder') {
-          window.toggleReorder();
-        } else if (action === 'new-account') {
-          window.openModal('newAccountModal');
-        }
-      };
-      cont.addEventListener('click', handler);
-      // Backup: en algunos Android Chrome, click no dispara con sidebar transformado.
-      // pointerup es más confiable y no tiene los problemas de touchend+preventDefault.
-      cont.addEventListener('pointerup', function (e) {
-        const btn = e.target.closest('button[data-action]');
-        if (!btn) return;
-        // Solo si fue tap directo (no drag/scroll)
-        if (e.pointerType === 'touch' || e.pointerType === 'pen') {
-          handler(e);
-        }
-      });
     }
 
     function getOrderedAccountIds() {
@@ -4039,12 +4098,97 @@
       renderSidebar();
     };
 
+    // ════════════════════════════════════
+    // BOTTOM SHEET MENU (mobile)
+    // Reemplazo limpio del drawer lateral.
+    // No usa transform en padre, no tiene los issues del drawer anterior.
+    // ════════════════════════════════════
+    window.openMenuSheet = function () {
+      renderMenuSheet();
+      const sheet = document.getElementById('menuSheet');
+      const bd = document.getElementById('menuSheetBackdrop');
+      if (sheet) sheet.classList.add('open');
+      if (bd) bd.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.closeMenuSheet = function () {
+      const sheet = document.getElementById('menuSheet');
+      const bd = document.getElementById('menuSheetBackdrop');
+      if (sheet) sheet.classList.remove('open');
+      if (bd) bd.classList.remove('open');
+      document.body.style.overflow = '';
+    };
+
+    window.menuSheetSelect = function (id) {
+      closeMenuSheet();
+      // Pequeño delay para que la animación de cierre sea visible antes de re-render
+      setTimeout(() => {
+        S.activeTab = id;
+        renderSidebar();
+        renderMain();
+        // Scroll al top en mobile
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 150);
+    };
+
+    window.menuSheetNewAccount = function () {
+      closeMenuSheet();
+      setTimeout(() => openModal('newAccountModal'), 200);
+    };
+
+    function renderMenuSheet() {
+      const body = document.getElementById('menuSheetBody');
+      if (!body) return;
+
+      const orderedAccountIds = getOrderedAccountIds();
+
+      const navItems = [
+        { id: '__resumen__', icon: '📊', label: 'Resumen General' },
+        { id: '__reportes__', icon: '📅', label: 'Reportes Mensuales' },
+        { id: '__deudas__', icon: '📋', label: 'Deudas' },
+        { id: '__fijos__', icon: '🔁', label: 'Gastos Fijos' },
+        { id: '__presupuesto__', icon: '🎯', label: 'Presupuesto' },
+      ];
+
+      const accountsHTML = orderedAccountIds.map(id => {
+        const a = S.accounts[id]; if (!a) return '';
+        const isActive = S.activeTab === id;
+        return `<button type="button" class="menu-sheet-item ${isActive ? 'active' : ''}" onclick="menuSheetSelect('${id}')">
+          <span class="menu-sheet-item-icon">${a.emoji || '🏦'}</span>
+          <span class="menu-sheet-item-label">${escapeHTML(a.name)}</span>
+          <span class="menu-sheet-item-balance">${fmt(getBalance(id))}</span>
+        </button>`;
+      }).join('');
+
+      const navHTML = navItems.map(n => `
+        <button type="button" class="menu-sheet-item ${S.activeTab === n.id ? 'active' : ''}" onclick="menuSheetSelect('${n.id}')">
+          <span class="menu-sheet-item-icon">${n.icon}</span>
+          <span class="menu-sheet-item-label">${n.label}</span>
+        </button>`).join('');
+
+      body.innerHTML = `
+        <div class="menu-sheet-section-label"><span>Cuentas</span></div>
+        ${accountsHTML || '<div style="font-size:12px;color:var(--text-muted);padding:8px 12px">Sin cuentas aún</div>'}
+        <button type="button" class="menu-sheet-add" onclick="menuSheetNewAccount()">+ Nueva cuenta</button>
+        <div class="menu-sheet-section-label"><span>General</span></div>
+        ${navHTML}
+      `;
+    }
+
     // Cleanup on resize: si el usuario rota o pasa a desktop, limpia estado de mobile drawer
     window.addEventListener('resize', () => {
-      if (window.innerWidth > 768 && S.sidebarMobileOpen) {
-        S.sidebarMobileOpen = false;
-        document.body.classList.remove('sidebar-locked');
-        renderSidebar();
+      if (window.innerWidth > 768) {
+        if (S.sidebarMobileOpen) {
+          S.sidebarMobileOpen = false;
+          document.body.classList.remove('sidebar-locked');
+          renderSidebar();
+        }
+        // Cierra el bottom sheet si está abierto
+        const sheet = document.getElementById('menuSheet');
+        if (sheet && sheet.classList.contains('open')) {
+          closeMenuSheet();
+        }
       }
     });
 
