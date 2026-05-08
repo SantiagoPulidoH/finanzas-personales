@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Finanzas · DashboardV9</title>
+  <title>Finanzas · DashboardV10</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap"
@@ -455,29 +455,30 @@
 
     @media (max-width: 768px) {
 
-      /* Sidebar como drawer sólido */
+      /* Sidebar como drawer sólido — z-index ALTO, pointer events forzados */
       .sidebar {
         position: fixed !important;
-        left: 0;
-        top: 0;
-        bottom: 0;
+        left: 0 !important;
+        top: 0 !important;
+        bottom: 0 !important;
         height: 100vh;
         height: 100dvh;
-        z-index: 150;
+        z-index: 9000 !important;
         width: 280px;
         max-width: 85vw;
         transform: translateX(-100%);
         box-shadow: 8px 0 40px rgba(0, 0, 0, .8);
-        background: #16161e;
+        background: #16161e !important;
         border-right: 2px solid var(--accent);
         padding-top: 60px;
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        pointer-events: auto !important;
       }
 
       .sidebar.mobile-open {
-        transform: translateX(0)
+        transform: translateX(0) !important
       }
 
       /* Override desktop "collapsed": en mobile siempre full width al abrir */
@@ -488,7 +489,7 @@
       }
 
       .sidebar.collapsed.mobile-open {
-        transform: translateX(0)
+        transform: translateX(0) !important
       }
 
       .sidebar.collapsed .sidebar-item-label {
@@ -522,6 +523,7 @@
         overflow-y: auto;
         overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
+        pointer-events: auto !important;
       }
 
       .sidebar-item-balance {
@@ -530,7 +532,7 @@
 
       /* Header sigue arriba */
       .header {
-        z-index: 160
+        z-index: 9100 !important;
       }
 
       /* Body content debajo */
@@ -542,6 +544,9 @@
       /* Items con fondo opaco al interactuar */
       .sidebar-item {
         background: transparent;
+        pointer-events: auto !important;
+        position: relative;
+        z-index: 2;
       }
 
       .sidebar-item:hover,
@@ -549,8 +554,18 @@
         background: rgba(124, 106, 245, .18)
       }
 
-      /* Cuando el sidebar está abierto, oculta el ruido del body */
+      /* Sidebar BACKDROP debe ir debajo del sidebar pero arriba de todo lo demás */
+      .sidebar-backdrop {
+        z-index: 8500 !important;
+      }
+
+      /* Cuando el sidebar está abierto, oculta el ruido del body y bloquea cualquier sticky */
       body.sidebar-locked::before {
+        display: none !important;
+      }
+
+      body.sidebar-locked .sticky-action-bar,
+      body.sidebar-locked .match-prompt {
         display: none !important;
       }
     }
@@ -3411,11 +3426,38 @@
 
   <div class="loading-bar" id="loadingBar"></div>
 
+  <!-- DEBUG: Eruda console - activa con 4 toques en el logo. Útil solo si hay problema -->
+  <script>
+    (function () {
+      let logoTaps = 0; let lastTap = 0;
+      window.activateDebug = function () {
+        if (window._erudaLoaded) return;
+        window._erudaLoaded = true;
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/eruda';
+        s.onload = function () { window.eruda.init(); alert('🔧 Consola activada. Toca el botón verde abajo a la derecha.'); };
+        s.onerror = function () { alert('No se pudo cargar la consola. Revisa internet.'); };
+        document.body.appendChild(s);
+      };
+      document.addEventListener('DOMContentLoaded', function () {
+        const logo = document.querySelector('.header-logo');
+        if (logo) {
+          logo.addEventListener('click', function () {
+            const now = Date.now();
+            if (now - lastTap < 600) logoTaps++; else logoTaps = 1;
+            lastTap = now;
+            if (logoTaps >= 4) { logoTaps = 0; activateDebug(); }
+          });
+        }
+      });
+    })();
+  </script>
+
   <header class="header">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="mobile-menu-btn" onclick="toggleSidebarMobile()" title="Abrir menú">☰</button>
       <div class="header-logo">
-        <div class="logo-dot"></div>Flujo<span>V9</span>
+        <div class="logo-dot"></div>Flujo<span>V10</span>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden">
@@ -3719,7 +3761,7 @@
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
       <div class="login-logo">
-        <div class="logo-dot"></div>Flujo<span>V9</span>
+        <div class="logo-dot"></div>Flujo<span>V10</span>
       </div>
       <div class="login-subtitle">Ingresa tus credenciales para continuar</div>
       <div class="login-field">
@@ -3918,6 +3960,22 @@
       if (S.sidebarReordering) {
         setupDragAndDrop();
       }
+
+      // Backup touch listener: en algunos navegadores Android onclick no dispara
+      // cuando hay transform activo. touchend explícito garantiza el tap.
+      cont.querySelectorAll('button.sidebar-item').forEach(btn => {
+        btn.addEventListener('touchend', function (e) {
+          // Solo si no es un drag y no hubo movimiento
+          if (S.sidebarReordering) return;
+          e.preventDefault();
+          e.stopPropagation();
+          // Disparar el onclick manualmente
+          const handler = btn.getAttribute('onclick');
+          if (handler) {
+            try { (new Function(handler))(); } catch (err) { console.error('[touchend handler]', err); }
+          }
+        }, { passive: false });
+      });
     }
 
     function getOrderedAccountIds() {
@@ -3928,6 +3986,7 @@
     }
 
     window.selectTab = function (id) {
+      console.log('[selectTab] called with id=', id, 'mobileOpen=', S.sidebarMobileOpen);
       S.activeTab = id;
       if (window.innerWidth <= 768) {
         S.sidebarMobileOpen = false;
