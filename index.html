@@ -665,6 +665,353 @@
       }
     }
 
+    /* ═════════════════════════════════════
+       CLICKABLE KPI CARDS (Reportes)
+       ═════════════════════════════════════ */
+    .kpi-card.clickable,
+    .stat-card.clickable {
+      cursor: pointer;
+      transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+      -webkit-tap-highlight-color: rgba(124, 106, 245, .25);
+    }
+    .kpi-card.clickable:hover,
+    .stat-card.clickable:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+      box-shadow: 0 6px 20px rgba(124, 106, 245, .15);
+    }
+    .kpi-card.clickable:active,
+    .stat-card.clickable:active {
+      transform: translateY(0);
+    }
+    .kpi-card.clickable::after {
+      content: '👁';
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      font-size: 12px;
+      opacity: .4;
+      transition: opacity .15s;
+    }
+    .kpi-card.clickable:hover::after { opacity: 1; }
+
+    /* ═════════════════════════════════════
+       TX DETAIL MODAL
+       ═════════════════════════════════════ */
+    .txdetail-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding: 14px;
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+    }
+    .txdetail-summary-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .txdetail-summary-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+    .txdetail-summary-value {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -.5px;
+    }
+    .txdetail-list {
+      max-height: 50vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 4px;
+    }
+    .txdetail-row {
+      display: grid;
+      grid-template-columns: 36px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      border-left: 3px solid var(--border);
+    }
+    .txdetail-row.entrada { border-left-color: var(--green); }
+    .txdetail-row.salida { border-left-color: var(--red); }
+    .txdetail-row.transferencia { border-left-color: var(--gold); }
+    .txdetail-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      background: var(--surface);
+    }
+    .txdetail-icon.entrada { background: var(--green-dim); color: var(--green); }
+    .txdetail-icon.salida { background: var(--red-dim); color: var(--red); }
+    .txdetail-icon.transferencia { background: var(--gold-dim); color: var(--gold); }
+    .txdetail-info { min-width: 0; }
+    .txdetail-desc {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .txdetail-meta {
+      font-size: 10px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 2px;
+    }
+    .txdetail-meta .cat-tag {
+      padding: 1px 6px;
+      background: var(--surface);
+      border-radius: 8px;
+      font-size: 9px;
+    }
+    .txdetail-amount {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .txdetail-amount.entrada { color: var(--green); }
+    .txdetail-amount.salida { color: var(--red); }
+    .txdetail-amount.transferencia { color: var(--gold); }
+    .txdetail-date {
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .txdetail-empty {
+      text-align: center;
+      padding: 30px;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    /* ═════════════════════════════════════
+       PROYECTOS — listado y detalle
+       ═════════════════════════════════════ */
+    .projects-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+      gap: 14px;
+    }
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      cursor: pointer;
+      transition: all .2s;
+      position: relative;
+      border-left: 4px solid var(--accent);
+      -webkit-tap-highlight-color: rgba(124, 106, 245, .25);
+    }
+    .project-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
+      border-color: var(--accent);
+    }
+    .project-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .project-card-name {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .project-card-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .project-card-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .project-stat-mini {
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+    .project-stat-mini-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 3px;
+    }
+    .project-stat-mini-value {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .project-card-meta {
+      font-size: 10px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .project-back-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .15s;
+    }
+    .project-back-btn:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    .project-detail-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .project-detail-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    /* Gráfica mensual mini */
+    .project-chart {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-bottom: 24px;
+    }
+    .project-chart-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .project-chart-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      height: 140px;
+      padding-bottom: 24px;
+      position: relative;
+    }
+    .project-chart-bar-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      position: relative;
+      min-width: 0;
+    }
+    .project-chart-bar-stack {
+      display: flex;
+      gap: 2px;
+      height: 100%;
+      width: 100%;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .project-chart-bar {
+      width: 12px;
+      min-height: 2px;
+      border-radius: 3px 3px 0 0;
+      transition: all .3s;
+      position: relative;
+    }
+    .project-chart-bar.income { background: var(--green); }
+    .project-chart-bar.expense { background: var(--red); }
+    .project-chart-bar:hover { opacity: .8; }
+    .project-chart-month {
+      position: absolute;
+      bottom: -22px;
+      font-size: 9px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      white-space: nowrap;
+    }
+    .project-chart-legend {
+      display: flex;
+      gap: 14px;
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 14px;
+    }
+    .project-chart-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .project-chart-legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+
+    @media (max-width: 768px) {
+      .txdetail-summary { grid-template-columns: 1fr 1fr; }
+      .txdetail-list { max-height: 60vh; }
+      .project-card-stats { grid-template-columns: 1fr 1fr; }
+      .project-detail-title { font-size: 20px; }
+      .project-chart-bars { height: 100px; }
+      .project-chart-bar { width: 8px; }
+    }
+
     .mobile-menu-btn {
       display: none;
       background: none;
@@ -3552,7 +3899,7 @@
     <div style="display:flex;align-items:center;gap:10px">
       <button class="mobile-menu-btn" onclick="openMenuSheet()" title="Abrir menú">☰</button>
       <div class="header-logo">
-        <div class="logo-dot"></div>Flujo<span>V12</span>
+        <div class="logo-dot"></div>Flujo<span>V13</span>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden">
@@ -3863,11 +4210,47 @@
     </div>
   </div>
 
+  <!-- ════════ TX DETAIL MODAL (click en KPI card) ════════ -->
+  <div class="modal-overlay" id="txDetailModal">
+    <div class="modal" style="max-width:620px">
+      <div class="modal-title" id="txDetailTitle">Detalle</div>
+      <div id="txDetailContent"></div>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="closeModal('txDetailModal')">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ PROJECT EDIT MODAL ════════ -->
+  <div class="modal-overlay" id="projectModal">
+    <div class="modal" style="max-width:480px">
+      <div class="modal-title" id="projectModalTitle">Nuevo proyecto</div>
+      <div class="field" style="margin-bottom:12px"><label>Nombre del proyecto</label><input id="proj_name" placeholder="Ej: Consultoria SPH"></div>
+      <div class="field" style="margin-bottom:12px"><label>Categoría asociada (de tu lista)</label><select id="proj_category"></select></div>
+      <div class="modal-grid" style="margin-bottom:12px">
+        <div class="field"><label>Emoji</label><input id="proj_emoji" placeholder="💼" maxlength="4"></div>
+        <div class="field"><label>Color</label><input id="proj_color" type="color" value="#7c6af5" style="height:38px;padding:4px"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-dim);margin-top:6px">
+        <input type="checkbox" id="proj_active" checked style="width:auto;margin:0;cursor:pointer">
+        <label for="proj_active" style="cursor:pointer;margin:0">Activo</label>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:14px;line-height:1.5;background:var(--surface2);padding:10px 12px;border-radius:var(--radius-sm)">
+        💡 El proyecto agrupa todos los movimientos que tengan la categoría asociada. Define ingresos y gastos automáticamente desde esa categoría.
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('projectModal')">Cancelar</button>
+        <button class="btn-danger-outline" id="proj_delete_btn" style="display:none" onclick="deleteProject()">Eliminar</button>
+        <button class="btn-primary" onclick="saveProject()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ════════ LOGIN SCREEN ════════ -->
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
       <div class="login-logo">
-        <div class="logo-dot"></div>Flujo<span>V12</span>
+        <div class="logo-dot"></div>Flujo<span>V13</span>
       </div>
       <div class="login-subtitle">Ingresa tus credenciales para continuar</div>
       <div class="login-field">
@@ -3906,7 +4289,7 @@
     const S = {
       activeTab: null,
       accounts: {}, transactions: {}, debts: {}, categories: [],
-      recurring: {}, budgets: {}, sidebarOrder: [],
+      recurring: {}, budgets: {}, projects: {}, sidebarOrder: [],
       tipo: 'salida',
       transf_dir: 'entrada',
       editTxId: null, editTxTipo: 'salida', editTransfDir: 'entrada',
@@ -4003,6 +4386,27 @@
         renderMain();
       });
 
+      onValue(ref(db, 'projects'), snap => {
+        S.projects = snap.val() || {};
+        // Auto-seed: si no existe ningún proyecto y existe la categoría "Consultoria SPH", crearlo
+        const hasAny = Object.keys(S.projects).length > 0;
+        const hasConsultoriaCat = S.categories.some(c =>
+          c.trim().toLowerCase().replace(/[áéíóú]/g, m => ({á:'a',é:'e',í:'i',ó:'o',ú:'u'}[m])) === 'consultoria sph'
+        );
+        if (!hasAny && hasConsultoriaCat && !S._projectSeedAttempted) {
+          S._projectSeedAttempted = true;
+          push(ref(db, 'projects'), {
+            name: 'Consultoria SPH',
+            category: 'Consultoria SPH',
+            color: '#7c6af5',
+            emoji: '💼',
+            active: true,
+            createdAt: Date.now()
+          }).catch(() => {});
+        }
+        renderMain();
+      });
+
       setLoad(true);
     }
 
@@ -4025,6 +4429,7 @@
         { id: '__deudas__', icon: '📋', label: 'Deudas' },
         { id: '__fijos__', icon: '🔁', label: 'Gastos Fijos' },
         { id: '__presupuesto__', icon: '🎯', label: 'Presupuesto' },
+        { id: '__proyectos__', icon: '💼', label: 'Proyectos' },
       ];
 
       const accountsHTML = orderedAccountIds.map(id => {
@@ -4149,6 +4554,7 @@
         { id: '__deudas__', icon: '📋', label: 'Deudas' },
         { id: '__fijos__', icon: '🔁', label: 'Gastos Fijos' },
         { id: '__presupuesto__', icon: '🎯', label: 'Presupuesto' },
+        { id: '__proyectos__', icon: '💼', label: 'Proyectos' },
       ];
 
       const accountsHTML = orderedAccountIds.map(id => {
@@ -4276,6 +4682,8 @@
       else if (S.activeTab === '__deudas__') renderDebts(c);
       else if (S.activeTab === '__fijos__') renderRecurring(c);
       else if (S.activeTab === '__presupuesto__') renderBudget(c);
+      else if (S.activeTab === '__proyectos__') renderProjects(c);
+      else if (S.activeTab.startsWith('__project_')) renderProjectDetail(c, S.activeTab.replace('__project_', ''));
       else renderAccount(c, S.activeTab);
     }
 
@@ -4724,23 +5132,23 @@
 
     <!-- KPI CARDS -->
     <div class="kpi-row">
-      <div class="kpi-card k-income">
+      <div class="kpi-card k-income clickable" onclick="openTxDetailModal('entrada', ${S.reportYear}, ${S.reportMonth})" title="Ver detalle de ingresos">
         <div class="kpi-label">Ingresos reales del mes</div>
         <div class="kpi-value green">${fmt(cur.entradas)}</div>
         ${deltaHtml(entDelta)}
         ${cur.transferencias > 0 ? `<div style="font-size:10px;color:var(--gold);margin-top:4px">+ ${fmt(cur.transferencias)} en transferencias (excluidas)</div>` : ''}
       </div>
-      <div class="kpi-card k-expense">
+      <div class="kpi-card k-expense clickable" onclick="openTxDetailModal('salida', ${S.reportYear}, ${S.reportMonth})" title="Ver detalle de gastos">
         <div class="kpi-label">Gastos del mes</div>
         <div class="kpi-value red">${fmt(cur.salidas)}</div>
         ${deltaHtml(salDelta, true)}
       </div>
-      <div class="kpi-card k-net">
+      <div class="kpi-card k-net clickable" onclick="openTxDetailModal('neto', ${S.reportYear}, ${S.reportMonth})" title="Ver detalle de flujo neto">
         <div class="kpi-label">Flujo neto</div>
         <div class="kpi-value ${cur.neto >= 0 ? 'green' : 'red'}">${fmt(cur.neto)}</div>
         ${netDelta !== null ? `<span class="kpi-delta ${netDelta >= 0 ? 'up' : 'down'}">${netDelta >= 0 ? '↑' : '↓'} ${fmt(Math.abs(netDelta))} vs anterior</span>` : `<span class="kpi-delta neutral">— sin referencia</span>`}
       </div>
-      <div class="kpi-card k-savings">
+      <div class="kpi-card k-savings clickable" onclick="openTxDetailModal('ahorro', ${S.reportYear}, ${S.reportMonth})" title="Ver detalle de tasa de ahorro">
         <div class="kpi-label">Tasa de ahorro</div>
         <div class="kpi-value ${cur.savingsRate >= 20 ? 'green' : cur.savingsRate >= 0 ? 'gold' : 'red'}">${cur.entradas > 0 ? cur.savingsRate.toFixed(1) + '%' : '—'}</div>
         <span class="kpi-delta neutral">${cur.savingsRate >= 30 ? 'Excelente 🏆' : cur.savingsRate >= 20 ? 'Bien 👍' : cur.savingsRate >= 10 ? 'Mejorable' : cur.savingsRate >= 0 ? 'Bajo' : 'Negativo'}</span>
@@ -5515,6 +5923,450 @@
       dismissMatch();
     };
 
+    // ═══════════════════════════════════════
+    //  TX DETAIL MODAL (click en KPI cards)
+    // ═══════════════════════════════════════
+    window.openTxDetailModal = function (kind, year, monthIdx) {
+      const monthLabel = `${MONTH_NAMES[monthIdx]} ${year}`;
+      let titleText = '';
+      let txs = [];
+      let summaryHTML = '';
+
+      const allMonthTxs = Object.entries(S.transactions).filter(([, t]) => {
+        if (!t.date) return false;
+        const d = new Date(t.date + 'T00:00:00');
+        return d.getFullYear() === year && d.getMonth() === monthIdx;
+      });
+
+      const entradas = allMonthTxs.filter(([, t]) => t.tipo === 'entrada');
+      const salidas = allMonthTxs.filter(([, t]) => t.tipo === 'salida');
+      const totalEnt = entradas.reduce((s, [, t]) => s + (t.monto || 0), 0);
+      const totalSal = salidas.reduce((s, [, t]) => s + (t.monto || 0), 0);
+
+      if (kind === 'entrada') {
+        titleText = `Ingresos reales — ${monthLabel}`;
+        txs = entradas;
+        summaryHTML = `
+          <div class="txdetail-summary">
+            <div class="txdetail-summary-item">
+              <span class="txdetail-summary-label">Total ingresos</span>
+              <span class="txdetail-summary-value" style="color:var(--green)">${fmt(totalEnt)}</span>
+            </div>
+            <div class="txdetail-summary-item">
+              <span class="txdetail-summary-label">Movimientos</span>
+              <span class="txdetail-summary-value">${entradas.length}</span>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;line-height:1.5">
+            ℹ️ Solo cuenta tipo "Ingreso" (nómina, freelance, pagos externos). Las transferencias entre tus propias cuentas no se incluyen aquí.
+          </div>
+        `;
+      } else if (kind === 'salida') {
+        titleText = `Gastos del mes — ${monthLabel}`;
+        txs = salidas;
+        // Top categorías
+        const catMap = {};
+        salidas.forEach(([, t]) => { catMap[t.cat || 'Otro'] = (catMap[t.cat || 'Otro'] || 0) + (t.monto || 0); });
+        const topCats = Object.entries(catMap).sort(([, a], [, b]) => b - a).slice(0, 3);
+        summaryHTML = `
+          <div class="txdetail-summary">
+            <div class="txdetail-summary-item">
+              <span class="txdetail-summary-label">Total gastos</span>
+              <span class="txdetail-summary-value" style="color:var(--red)">${fmt(totalSal)}</span>
+            </div>
+            <div class="txdetail-summary-item">
+              <span class="txdetail-summary-label">Movimientos</span>
+              <span class="txdetail-summary-value">${salidas.length}</span>
+            </div>
+          </div>
+          ${topCats.length ? `<div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;line-height:1.5">📊 Top categorías: ${topCats.map(([c, a]) => `<strong>${escapeHTML(c)}</strong> ${fmt(a)}`).join(' · ')}</div>` : ''}
+        `;
+      } else if (kind === 'neto') {
+        titleText = `Flujo neto — ${monthLabel}`;
+        txs = [...entradas, ...salidas];
+        const neto = totalEnt - totalSal;
+        summaryHTML = `
+          <div class="txdetail-summary" style="grid-template-columns:1fr 1fr 1fr">
+            <div class="txdetail-summary-item">
+              <span class="txdetail-summary-label">Ingresos</span>
+              <span class="txdetail-summary-value" style="color:var(--green)">${fmt(totalEnt)}</span>
+            </div>
+            <div class="txdetail-summary-item">
+              <span class="txdetail-summary-label">Gastos</span>
+              <span class="txdetail-summary-value" style="color:var(--red)">${fmt(totalSal)}</span>
+            </div>
+            <div class="txdetail-summary-item">
+              <span class="txdetail-summary-label">Neto</span>
+              <span class="txdetail-summary-value" style="color:${neto >= 0 ? 'var(--green)' : 'var(--red)'}">${fmt(neto)}</span>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;line-height:1.5">
+            ℹ️ Flujo neto = Ingresos − Gastos (sin contar transferencias entre cuentas propias).
+          </div>
+        `;
+      } else if (kind === 'ahorro') {
+        titleText = `Tasa de ahorro — ${monthLabel}`;
+        txs = [...entradas, ...salidas];
+        const rate = totalEnt > 0 ? ((totalEnt - totalSal) / totalEnt * 100) : 0;
+        const ahorro = totalEnt - totalSal;
+        summaryHTML = `
+          <div class="txdetail-summary" style="grid-template-columns:1fr 1fr 1fr">
+            <div class="txdetail-summary-item">
+              <span class="txdetail-summary-label">Tasa</span>
+              <span class="txdetail-summary-value" style="color:${rate >= 20 ? 'var(--green)' : rate >= 0 ? 'var(--gold)' : 'var(--red)'}">${totalEnt > 0 ? rate.toFixed(1) + '%' : '—'}</span>
+            </div>
+            <div class="txdetail-summary-item">
+              <span class="txdetail-summary-label">Ahorrado</span>
+              <span class="txdetail-summary-value" style="color:${ahorro >= 0 ? 'var(--green)' : 'var(--red)'}">${fmt(ahorro)}</span>
+            </div>
+            <div class="txdetail-summary-item">
+              <span class="txdetail-summary-label">de ${fmt(totalEnt)}</span>
+              <span class="txdetail-summary-value" style="font-size:12px;color:var(--text-muted)">ingresos</span>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;line-height:1.5">
+            ℹ️ Tasa de ahorro = (Ingresos − Gastos) / Ingresos × 100. Muestra todos los movimientos que componen el cálculo.
+          </div>
+        `;
+      }
+
+      // Ordenar por fecha desc
+      txs.sort(([, a], [, b]) => (b.date || '').localeCompare(a.date || ''));
+
+      const listHTML = txs.length ? txs.map(([id, t]) => {
+        const sign = t.tipo === 'entrada' ? '+' : '-';
+        return `<div class="txdetail-row ${t.tipo}">
+          <div class="txdetail-icon ${t.tipo}">${t.tipo === 'entrada' ? '↑' : '↓'}</div>
+          <div class="txdetail-info">
+            <div class="txdetail-desc">${escapeHTML(t.desc || '(sin descripción)')}</div>
+            <div class="txdetail-meta">
+              ${t.entity ? `<span>${escapeHTML(t.entity)}</span>` : ''}
+              <span class="cat-tag">${escapeHTML(t.cat || 'Otro')}</span>
+              ${S.accounts[t.accountId] ? `<span>${S.accounts[t.accountId].emoji || ''} ${escapeHTML(S.accounts[t.accountId].name)}</span>` : ''}
+            </div>
+          </div>
+          <div>
+            <div class="txdetail-amount ${t.tipo}">${sign}${fmt(t.monto || 0)}</div>
+            <div class="txdetail-date">${t.date || ''}</div>
+          </div>
+        </div>`;
+      }).join('') : '<div class="txdetail-empty">Sin movimientos en este periodo</div>';
+
+      document.getElementById('txDetailTitle').textContent = titleText;
+      document.getElementById('txDetailContent').innerHTML = summaryHTML + '<div class="txdetail-list">' + listHTML + '</div>';
+      openModal('txDetailModal');
+    };
+
+    // ═══════════════════════════════════════
+    //  PROYECTOS
+    // ═══════════════════════════════════════
+
+    // Normaliza texto para comparaciones (sin tildes, minúsculas, trim)
+    function normalizeText(s) {
+      if (!s) return '';
+      return String(s).trim().toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    // Devuelve las transacciones de un proyecto (filtradas por su categoría)
+    function getProjectTxs(project, filterYear, filterMonth) {
+      const catNorm = normalizeText(project.category);
+      return Object.entries(S.transactions).filter(([, t]) => {
+        if (normalizeText(t.cat) !== catNorm) return false;
+        if (filterYear != null) {
+          if (!t.date) return false;
+          const d = new Date(t.date + 'T00:00:00');
+          if (d.getFullYear() !== filterYear) return false;
+          if (filterMonth != null && d.getMonth() !== filterMonth) return false;
+        }
+        return true;
+      }).map(([id, t]) => ({ id, ...t }));
+    }
+
+    // Stats de un proyecto: ingresos, gastos, neto, # movs
+    function getProjectStats(project, filterYear, filterMonth) {
+      const txs = getProjectTxs(project, filterYear, filterMonth);
+      const ingresos = txs.filter(t => t.tipo === 'entrada').reduce((s, t) => s + (t.monto || 0), 0);
+      const gastos = txs.filter(t => t.tipo === 'salida').reduce((s, t) => s + (t.monto || 0), 0);
+      return {
+        ingresos, gastos,
+        neto: ingresos - gastos,
+        count: txs.length,
+        txs
+      };
+    }
+
+    function renderProjects(c) {
+      const all = Object.entries(S.projects).map(([id, p]) => ({ ...p, id }));
+      const active = all.filter(p => p.active !== false);
+      const inactive = all.filter(p => p.active === false);
+
+      const renderCard = (p) => {
+        const stats = getProjectStats(p);
+        return `
+          <div class="project-card" style="border-left-color:${p.color || '#7c6af5'}" onclick="selectTab('__project_${p.id}')">
+            <div class="project-card-top">
+              <div class="project-card-name">
+                <span style="font-size:18px">${p.emoji || '💼'}</span>
+                <span>${escapeHTML(p.name)}</span>
+              </div>
+              <div class="project-card-actions">
+                <button class="btn-xs ed" onclick="event.stopPropagation();openEditProject('${p.id}')" title="Editar">✏</button>
+              </div>
+            </div>
+            <div class="project-card-stats">
+              <div class="project-stat-mini">
+                <div class="project-stat-mini-label">Ingresos</div>
+                <div class="project-stat-mini-value" style="color:var(--green)">${fmt(stats.ingresos)}</div>
+              </div>
+              <div class="project-stat-mini">
+                <div class="project-stat-mini-label">Gastos</div>
+                <div class="project-stat-mini-value" style="color:var(--red)">${fmt(stats.gastos)}</div>
+              </div>
+            </div>
+            <div class="project-card-meta">
+              <span>📊 Balance: <strong style="color:${stats.neto >= 0 ? 'var(--green)' : 'var(--red)'}">${fmt(stats.neto)}</strong></span>
+              <span>📝 ${stats.count} movs</span>
+              <span>🏷️ ${escapeHTML(p.category)}</span>
+            </div>
+          </div>`;
+      };
+
+      c.innerHTML = `
+        <div class="projects-header">
+          <div>
+            <div style="font-family:var(--font-display);font-size:24px;font-weight:800;letter-spacing:-1px;margin-bottom:4px">💼 Proyectos</div>
+            <div style="font-size:12px;color:var(--text-muted)">${active.length} activo(s) · Agrupa movimientos por categoría</div>
+          </div>
+          <button class="btn-primary" onclick="openNewProject()">+ Nuevo proyecto</button>
+        </div>
+
+        <div style="font-size:11px;color:var(--text-muted);line-height:1.6;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:20px;border-left:3px solid var(--accent)">
+          💡 <strong>Cómo funciona:</strong> cada proyecto se asocia a una <em>categoría existente</em>. Todos los movimientos con esa categoría se cuentan automáticamente para el proyecto — no hay que clasificarlos dos veces. Toca un proyecto para ver su detalle con ingresos, gastos, balance y gráfica mensual.
+        </div>
+
+        ${active.length ? `<div class="projects-grid">${active.map(renderCard).join('')}</div>` : '<div class="empty-state"><div class="emoji">💼</div>No tienes proyectos aún.<br>Crea uno para empezar a controlar ingresos y gastos por proyecto.</div>'}
+
+        ${inactive.length ? `
+          <div class="recurring-section-title" style="margin-top:28px">⏸ Inactivos (${inactive.length})</div>
+          <div class="projects-grid" style="opacity:.6">${inactive.map(renderCard).join('')}</div>
+        ` : ''}
+      `;
+    }
+
+    function renderProjectDetail(c, projectId) {
+      const p = S.projects[projectId];
+      if (!p) {
+        c.innerHTML = '<div class="empty-state"><div class="emoji">⚠️</div>Proyecto no encontrado.</div>';
+        return;
+      }
+
+      // Filtro: 'all' o YYYY-MM
+      const filter = S.projectFilter || 'all';
+      let filterYear = null, filterMonth = null;
+      if (filter !== 'all') {
+        const [y, m] = filter.split('-').map(Number);
+        filterYear = y; filterMonth = m - 1;
+      }
+      const stats = getProjectStats(p, filterYear, filterMonth);
+
+      // Gráfica mensual (últimos 12 meses)
+      const today = new Date();
+      const months = [];
+      for (let i = 11; i >= 0; i--) {
+        const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        months.push({ y: d.getFullYear(), m: d.getMonth(), label: `${(d.getMonth() + 1).toString().padStart(2, '0')}/${(d.getFullYear() + '').slice(2)}` });
+      }
+      const monthlyStats = months.map(({ y, m, label }) => {
+        const s = getProjectStats(p, y, m);
+        return { label, ingresos: s.ingresos, gastos: s.gastos, y, m };
+      });
+      const maxVal = Math.max(...monthlyStats.map(s => Math.max(s.ingresos, s.gastos)), 1);
+
+      // Opciones de filtro de mes
+      const monthOptions = months.map(({ y, m, label }) =>
+        `<option value="${y}-${(m + 1).toString().padStart(2, '0')}">${MONTH_NAMES[m]} ${y}</option>`
+      ).reverse().join('');
+
+      const sortedTxs = [...stats.txs].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+      c.innerHTML = `
+        <div style="margin-bottom:14px"><button class="project-back-btn" onclick="selectTab('__proyectos__')">‹ Volver a Proyectos</button></div>
+
+        <div class="project-detail-header">
+          <div>
+            <div class="project-detail-title">
+              <span style="font-size:28px">${p.emoji || '💼'}</span>
+              <span style="color:${p.color || 'var(--text)'}">${escapeHTML(p.name)}</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted)">Categoría: <strong>${escapeHTML(p.category)}</strong> · ${stats.count} movimientos en filtro</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <select onchange="setProjectFilter(this.value)" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--font-mono);font-size:12px;padding:7px 10px;outline:none">
+              <option value="all" ${filter === 'all' ? 'selected' : ''}>Histórico completo</option>
+              ${monthOptions.replace(`value="${filter}"`, `value="${filter}" selected`)}
+            </select>
+            <button class="btn-primary" onclick="quickAddProjectTx('${p.id}')" title="Registrar movimiento con esta categoría">+ Registrar</button>
+            <button class="btn-outline" onclick="openEditProject('${p.id}')">✏ Editar</button>
+          </div>
+        </div>
+
+        <div class="summary-grid" style="margin-bottom:24px">
+          <div class="stat-card">
+            <div class="stat-card-label">💰 Ingresos</div>
+            <div class="stat-card-value green">${fmt(stats.ingresos)}</div>
+            <div class="stat-card-sub">${stats.txs.filter(t => t.tipo === 'entrada').length} movs</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">💸 Gastos</div>
+            <div class="stat-card-value red">${fmt(stats.gastos)}</div>
+            <div class="stat-card-sub">${stats.txs.filter(t => t.tipo === 'salida').length} movs</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">📊 Balance neto</div>
+            <div class="stat-card-value ${stats.neto >= 0 ? 'green' : 'red'}">${fmt(stats.neto)}</div>
+            <div class="stat-card-sub">${stats.ingresos > 0 ? ((stats.neto / stats.ingresos) * 100).toFixed(0) + '% margen' : '—'}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">📝 Movimientos</div>
+            <div class="stat-card-value accent">${stats.count}</div>
+            <div class="stat-card-sub">${stats.count > 0 ? `Prom: ${fmt(Math.round((stats.ingresos + stats.gastos) / stats.count))}` : 'Sin datos'}</div>
+          </div>
+        </div>
+
+        <div class="project-chart">
+          <div class="project-chart-title">
+            <span>Evolución últimos 12 meses</span>
+            <span style="text-transform:none;letter-spacing:0;color:var(--text-muted);font-size:10px">Ingresos vs Gastos</span>
+          </div>
+          <div class="project-chart-bars">
+            ${monthlyStats.map(s => {
+        const hIn = s.ingresos > 0 ? (s.ingresos / maxVal * 100) : 0;
+        const hOut = s.gastos > 0 ? (s.gastos / maxVal * 100) : 0;
+        return `
+              <div class="project-chart-bar-group" title="${s.label}: +${fmt(s.ingresos)} / -${fmt(s.gastos)}">
+                <div class="project-chart-bar-stack">
+                  <div class="project-chart-bar income" style="height:${hIn}%"></div>
+                  <div class="project-chart-bar expense" style="height:${hOut}%"></div>
+                </div>
+                <div class="project-chart-month">${s.label}</div>
+              </div>`;
+      }).join('')}
+          </div>
+          <div class="project-chart-legend">
+            <span class="project-chart-legend-item"><span class="project-chart-legend-dot" style="background:var(--green)"></span>Ingresos</span>
+            <span class="project-chart-legend-item"><span class="project-chart-legend-dot" style="background:var(--red)"></span>Gastos</span>
+          </div>
+        </div>
+
+        <div class="section-label" style="margin-bottom:14px">Movimientos del proyecto (${sortedTxs.length})</div>
+        ${sortedTxs.length ? `<div class="tx-list">${sortedTxs.map(t => txHTML(t.id, t)).join('')}</div>` : '<div class="empty-state"><div class="emoji">📋</div>Sin movimientos en este periodo.</div>'}
+      `;
+    }
+
+    window.setProjectFilter = function (v) {
+      S.projectFilter = v;
+      renderMain();
+    };
+
+    window.quickAddProjectTx = function (projectId) {
+      const p = S.projects[projectId];
+      if (!p) return;
+      // Selecciona la primera cuenta disponible y abre su pestaña con el form pre-categorizado
+      const firstAcc = Object.keys(S.accounts)[0];
+      if (!firstAcc) { toast('Crea primero una cuenta', 'error'); return; }
+      S.activeTab = firstAcc;
+      renderSidebar();
+      renderMain();
+      // Pre-fill después de renderizar
+      setTimeout(() => {
+        const catSel = document.getElementById('tx_cat');
+        if (catSel) {
+          // Buscar la categoría exacta del proyecto
+          for (const opt of catSel.options) {
+            if (normalizeText(opt.value) === normalizeText(p.category)) {
+              catSel.value = opt.value;
+              break;
+            }
+          }
+        }
+        const descInput = document.getElementById('tx_desc');
+        if (descInput) descInput.focus();
+        // Scroll al formulario
+        document.querySelector('.form-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        toast(`Categoría "${p.category}" pre-seleccionada`, 'success');
+      }, 100);
+    };
+
+    window.openNewProject = function () {
+      S.editProjectId = null;
+      document.getElementById('projectModalTitle').textContent = 'Nuevo proyecto';
+      document.getElementById('proj_delete_btn').style.display = 'none';
+      sv('proj_name', '');
+      sv('proj_emoji', '💼');
+      document.getElementById('proj_color').value = '#7c6af5';
+      document.getElementById('proj_active').checked = true;
+      // Populate categories
+      const sel = document.getElementById('proj_category');
+      sel.innerHTML = S.categories.map(c => `<option>${escapeHTML(c)}</option>`).join('');
+      openModal('projectModal');
+    };
+
+    window.openEditProject = function (id) {
+      const p = S.projects[id];
+      if (!p) return;
+      S.editProjectId = id;
+      document.getElementById('projectModalTitle').textContent = 'Editar proyecto';
+      document.getElementById('proj_delete_btn').style.display = '';
+      sv('proj_name', p.name || '');
+      sv('proj_emoji', p.emoji || '💼');
+      document.getElementById('proj_color').value = p.color || '#7c6af5';
+      document.getElementById('proj_active').checked = p.active !== false;
+      const sel = document.getElementById('proj_category');
+      sel.innerHTML = S.categories.map(c => `<option ${c === p.category ? 'selected' : ''}>${escapeHTML(c)}</option>`).join('');
+      // Si la categoría guardada ya no existe en la lista, agregarla como opción para no perderla
+      if (p.category && !S.categories.some(c => c === p.category)) {
+        sel.innerHTML += `<option selected value="${escapeAttr(p.category)}">${escapeHTML(p.category)} (no existe en lista)</option>`;
+      }
+      openModal('projectModal');
+    };
+
+    window.saveProject = async function () {
+      const name = g('proj_name').trim();
+      const category = g('proj_category');
+      if (!name) { toast('Pon un nombre', 'error'); return; }
+      if (!category) { toast('Selecciona una categoría', 'error'); return; }
+      const payload = {
+        name,
+        category,
+        emoji: g('proj_emoji').trim() || '💼',
+        color: g('proj_color') || '#7c6af5',
+        active: document.getElementById('proj_active').checked,
+        updatedAt: Date.now()
+      };
+      if (S.editProjectId) {
+        await update(ref(db, 'projects/' + S.editProjectId), payload);
+        toast('Proyecto actualizado ✓', 'success');
+      } else {
+        payload.createdAt = Date.now();
+        await push(ref(db, 'projects'), payload);
+        toast('Proyecto creado ✓', 'success');
+      }
+      closeModal('projectModal');
+    };
+
+    window.deleteProject = async function () {
+      if (!S.editProjectId) return;
+      const p = S.projects[S.editProjectId];
+      if (!confirm(`¿Eliminar el proyecto "${p?.name}"?\n\nLos movimientos asociados a la categoría "${p?.category}" NO se borran — solo se desvincula la agrupación de proyecto.`)) return;
+      await remove(ref(db, 'projects/' + S.editProjectId));
+      toast('Proyecto eliminado', 'success');
+      closeModal('projectModal');
+      S.activeTab = '__proyectos__';
+      renderSidebar();
+      renderMain();
+    };
+
     // ═══════════════════════════════════
     //  WINDOW ACTIONS
     // ═══════════════════════════════════
@@ -5876,6 +6728,16 @@
       const meDeben = debts.filter(d => d.tipo === 'me_debe' && d.status !== 'paid').reduce((s, d) => s + d.amount, 0);
       const leDebo = debts.filter(d => d.tipo === 'le_debo' && d.status !== 'paid').reduce((s, d) => s + d.amount, 0);
 
+      // Proyectos (solo si hay proyectos definidos)
+      const projectsList = Object.entries(S.projects || {}).map(([id, p]) => ({ id, ...p })).filter(p => p.active !== false);
+      const projectStatsArr = projectsList.map(p => {
+        // Filtrar txArr por categoría del proyecto (respeta el filtro de fecha de la PDF)
+        const pTxs = txArr.filter(t => normalizeText(t.cat) === normalizeText(p.category));
+        const ing = pTxs.filter(t => t.tipo === 'entrada').reduce((s, t) => s + (t.monto || 0), 0);
+        const gas = pTxs.filter(t => t.tipo === 'salida').reduce((s, t) => s + (t.monto || 0), 0);
+        return { project: p, ingresos: ing, gastos: gas, neto: ing - gas, count: pTxs.length };
+      });
+
       // Movimientos ordenados por fecha desc
       const sortedTxs = txArr.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
@@ -6001,6 +6863,23 @@ ${debts.length ? `
         <td>${d.due || '-'}</td>
         <td><span class="badge" style="background:${d.status === 'paid' ? '#d1fae5' : '#fef3c7'};color:${d.status === 'paid' ? '#059669' : '#ca8a04'}">${d.status === 'paid' ? 'Pagada' : 'Pendiente'}</span></td>
         <td style="font-size:8px;color:#6b6b80">${d.notes || ''}</td>
+      </tr>`).join('')}
+  </tbody>
+</table>`: ''}
+
+${projectStatsArr.length ? `
+<h2>Proyectos</h2>
+<table class="small-table">
+  <thead><tr><th>Proyecto</th><th>Categoría</th><th class="num">Ingresos</th><th class="num">Gastos</th><th class="num">Balance</th><th class="num"># Movs</th></tr></thead>
+  <tbody>
+    ${projectStatsArr.map(ps => `
+      <tr>
+        <td><strong>${(ps.project.emoji || '💼')} ${ps.project.name || ''}</strong></td>
+        <td>${ps.project.category || '-'}</td>
+        <td class="num green-text">${fmt(ps.ingresos)}</td>
+        <td class="num red-text">${fmt(ps.gastos)}</td>
+        <td class="num"><strong style="color:${ps.neto >= 0 ? '#059669' : '#dc2626'}">${fmt(ps.neto)}</strong></td>
+        <td class="num">${ps.count}</td>
       </tr>`).join('')}
   </tbody>
 </table>`: ''}
