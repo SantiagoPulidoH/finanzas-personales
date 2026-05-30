@@ -1012,6 +1012,150 @@
       .project-chart-bar { width: 8px; }
     }
 
+    /* ═══════════════════════════════════════
+       INVERSIONES
+       ═══════════════════════════════════════ */
+    .invest-pl-pos { color: var(--green) !important; }
+    .invest-pl-neg { color: var(--red) !important; }
+    .invest-card-pl {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .invest-card-pl.pos { background: var(--green-dim); color: var(--green); }
+    .invest-card-pl.neg { background: var(--red-dim); color: var(--red); }
+    .invest-currency-badge {
+      font-size: 9px;
+      padding: 1px 7px;
+      border-radius: 8px;
+      background: var(--surface2);
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: .3px;
+    }
+    .invest-alloc-bar {
+      height: 10px;
+      border-radius: 6px;
+      background: var(--surface2);
+      overflow: hidden;
+      display: flex;
+      margin: 14px 0 6px;
+    }
+    .invest-alloc-seg {
+      height: 100%;
+      transition: width .4s;
+    }
+    .invest-alloc-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .invest-alloc-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+    .invest-alloc-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .invest-alloc-name { flex: 1; color: var(--text-dim); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .invest-alloc-pct { font-family: var(--font-mono); font-weight: 700; color: var(--text); }
+    .invest-alloc-val { font-family: var(--font-mono); color: var(--text-muted); font-size: 11px; }
+
+    .invest-rate-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      flex-wrap: wrap;
+    }
+    .invest-rate-box input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 5px 8px;
+      width: 110px;
+      outline: none;
+    }
+    .invest-rate-box input:focus { border-color: var(--accent); }
+
+    .invest-data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .invest-data-table th {
+      text-align: left;
+      padding: 8px 10px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+    }
+    .invest-data-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+      font-variant-numeric: tabular-nums;
+    }
+    .invest-data-table tr:last-child td { border-bottom: none; }
+    .invest-data-table .num { text-align: right; font-family: var(--font-mono); }
+    .invest-data-table .row-action {
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .invest-data-table .row-action:hover { color: var(--red); background: var(--red-dim); }
+    .invest-table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow-x: auto;
+      margin-bottom: 24px;
+    }
+
+    .invest-add-price-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 12px;
+      flex-wrap: wrap;
+      border-top: 1px solid var(--border);
+    }
+    .invest-add-price-row input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 7px 10px;
+      outline: none;
+    }
+    .invest-add-price-row input:focus { border-color: var(--accent); }
+
+    @media (max-width: 768px) {
+      .invest-data-table { font-size: 11px; }
+      .invest-data-table th, .invest-data-table td { padding: 6px 7px; }
+    }
+
     .mobile-menu-btn {
       display: none;
       background: none;
@@ -3899,7 +4043,7 @@
     <div style="display:flex;align-items:center;gap:10px">
       <button class="mobile-menu-btn" onclick="openMenuSheet()" title="Abrir menú">☰</button>
       <div class="header-logo">
-        <div class="logo-dot"></div>Flujo<span>V13</span>
+        <div class="logo-dot"></div>Flujo<span>V14</span>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden">
@@ -4246,11 +4390,82 @@
     </div>
   </div>
 
+  <!-- ════════ INVESTMENT (ACTIVO) MODAL ════════ -->
+  <div class="modal-overlay" id="investModal">
+    <div class="modal" style="max-width:480px">
+      <div class="modal-title" id="investModalTitle">Nuevo activo</div>
+      <div class="field" style="margin-bottom:12px"><label>Nombre del activo</label><input id="inv_asset" placeholder="Ej: VWCE/VWRA, BTC, ICOLCAP"></div>
+      <div class="modal-grid" style="margin-bottom:12px">
+        <div class="field"><label>Tipo</label>
+          <select id="inv_type">
+            <option value="etf">ETF / Fondo</option>
+            <option value="crypto">Cripto</option>
+            <option value="stock">Acción</option>
+            <option value="other">Otro</option>
+          </select>
+        </div>
+        <div class="field"><label>Moneda</label>
+          <select id="inv_currency">
+            <option value="USD">USD (dólares)</option>
+            <option value="COP">COP (pesos)</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-grid" style="margin-bottom:12px">
+        <div class="field"><label>Emoji</label><input id="inv_emoji" placeholder="💹" maxlength="4"></div>
+        <div class="field"><label>Color</label><input id="inv_color" type="color" value="#2dd4a0" style="height:38px;padding:4px"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-dim);margin-top:6px">
+        <input type="checkbox" id="inv_active" checked style="width:auto;margin:0;cursor:pointer">
+        <label for="inv_active" style="cursor:pointer;margin:0">Activo</label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('investModal')">Cancelar</button>
+        <button class="btn-danger-outline" id="inv_delete_btn" style="display:none" onclick="deleteInvestment()">Eliminar</button>
+        <button class="btn-primary" onclick="saveInvestment()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ PURCHASE MODAL ════════ -->
+  <div class="modal-overlay" id="purchaseModal">
+    <div class="modal" style="max-width:480px">
+      <div class="modal-title" id="purchaseModalTitle">Registrar compra</div>
+      <div id="purchaseAssetLabel" style="font-size:12px;color:var(--text-muted);margin-bottom:14px"></div>
+      <div class="modal-grid" style="margin-bottom:12px">
+        <div class="field"><label>Fecha</label><input id="pur_date" type="date"></div>
+        <div class="field"><label>Unidades compradas</label><input id="pur_units" type="number" step="any" placeholder="0"></div>
+      </div>
+      <div class="modal-grid" style="margin-bottom:12px">
+        <div class="field"><label>Precio por unidad (<span id="pur_currency_label">USD</span>)</label><input id="pur_price" type="number" step="any" placeholder="0"></div>
+        <div class="field"><label>Comisión / fee (opcional)</label><input id="pur_fee" type="number" step="any" placeholder="0"></div>
+      </div>
+      <div id="pur_total_preview" style="font-size:12px;color:var(--accent);margin-bottom:12px;font-family:var(--font-mono)"></div>
+      <div class="field" style="margin-bottom:12px"><label>Notas (opcional)</label><input id="pur_notes" placeholder="Ej: entrada DCA #1"></div>
+
+      <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-dim)">
+          <input type="checkbox" id="pur_create_movement" style="width:auto;margin:0;cursor:pointer">
+          <label for="pur_create_movement" style="cursor:pointer;margin:0">Registrar salida de dinero en una cuenta</label>
+        </div>
+        <div id="pur_account_wrap" style="display:none;margin-top:10px">
+          <div class="field"><label>Cuenta de origen</label><select id="pur_account"></select></div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:6px;line-height:1.5">Se creará un movimiento tipo transferencia (salida) — no cuenta como gasto en reportes. Si la moneda del activo es USD, el monto se convierte a COP con la tasa actual.</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('purchaseModal')">Cancelar</button>
+        <button class="btn-primary" onclick="savePurchase()">Guardar compra</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ════════ LOGIN SCREEN ════════ -->
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
       <div class="login-logo">
-        <div class="logo-dot"></div>Flujo<span>V13</span>
+        <div class="logo-dot"></div>Flujo<span>V14</span>
       </div>
       <div class="login-subtitle">Ingresa tus credenciales para continuar</div>
       <div class="login-field">
@@ -4289,7 +4504,11 @@
     const S = {
       activeTab: null,
       accounts: {}, transactions: {}, debts: {}, categories: [],
-      recurring: {}, budgets: {}, projects: {}, sidebarOrder: [],
+      recurring: {}, budgets: {}, projects: {}, investments: {}, sidebarOrder: [],
+      usdRate: parseFloat(localStorage.getItem('usdRate')) || 4000,
+      investFilter: 'all',
+      editInvestId: null,
+      editPurchaseIdx: null,
       tipo: 'salida',
       transf_dir: 'entrada',
       editTxId: null, editTxTipo: 'salida', editTransfDir: 'entrada',
@@ -4407,6 +4626,11 @@
         renderMain();
       });
 
+      onValue(ref(db, 'investments'), snap => {
+        S.investments = snap.val() || {};
+        renderMain();
+      });
+
       setLoad(true);
     }
 
@@ -4430,6 +4654,7 @@
         { id: '__fijos__', icon: '🔁', label: 'Gastos Fijos' },
         { id: '__presupuesto__', icon: '🎯', label: 'Presupuesto' },
         { id: '__proyectos__', icon: '💼', label: 'Proyectos' },
+        { id: '__inversiones__', icon: '💹', label: 'Inversiones' },
       ];
 
       const accountsHTML = orderedAccountIds.map(id => {
@@ -4555,6 +4780,7 @@
         { id: '__fijos__', icon: '🔁', label: 'Gastos Fijos' },
         { id: '__presupuesto__', icon: '🎯', label: 'Presupuesto' },
         { id: '__proyectos__', icon: '💼', label: 'Proyectos' },
+        { id: '__inversiones__', icon: '💹', label: 'Inversiones' },
       ];
 
       const accountsHTML = orderedAccountIds.map(id => {
@@ -4684,6 +4910,8 @@
       else if (S.activeTab === '__presupuesto__') renderBudget(c);
       else if (S.activeTab === '__proyectos__') renderProjects(c);
       else if (S.activeTab.startsWith('__project_')) renderProjectDetail(c, S.activeTab.replace('__project_', ''));
+      else if (S.activeTab === '__inversiones__') renderInvestments(c);
+      else if (S.activeTab.startsWith('__invest_')) renderInvestmentDetail(c, S.activeTab.replace('__invest_', ''));
       else renderAccount(c, S.activeTab);
     }
 
@@ -6367,6 +6595,529 @@
       renderMain();
     };
 
+    // ═══════════════════════════════════════
+    //  INVERSIONES
+    // ═══════════════════════════════════════
+
+    // Conversión a COP según moneda del activo
+    function toCOP(amount, currency) {
+      if (currency === 'USD') return amount * (S.usdRate || 4000);
+      return amount; // COP
+    }
+
+    // Calcula stats de un activo (en su moneda nativa)
+    function getInvestmentStats(inv) {
+      const purchases = inv.purchases || [];
+      const priceHistory = (inv.priceHistory || []).slice().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+      const totalUnits = purchases.reduce((s, p) => s + (parseFloat(p.units) || 0), 0);
+      const totalInvested = purchases.reduce((s, p) => s + ((parseFloat(p.units) || 0) * (parseFloat(p.pricePerUnit) || 0) + (parseFloat(p.fee) || 0)), 0);
+      const avgPrice = totalUnits > 0 ? totalInvested / totalUnits : 0;
+      const lastPrice = priceHistory.length ? parseFloat(priceHistory[priceHistory.length - 1].price) || 0 : avgPrice;
+      const currentValue = totalUnits * lastPrice;
+      const pl = currentValue - totalInvested;
+      const plPct = totalInvested > 0 ? (pl / totalInvested * 100) : 0;
+      return {
+        totalUnits, totalInvested, avgPrice, lastPrice,
+        currentValue, pl, plPct,
+        purchaseCount: purchases.length,
+        priceHistory,
+        currency: inv.currency || 'COP'
+      };
+    }
+
+    function renderInvestments(c) {
+      const all = Object.entries(S.investments).map(([id, inv]) => ({ ...inv, id }));
+      const active = all.filter(inv => inv.active !== false);
+      const inactive = all.filter(inv => inv.active === false);
+
+      // Totales del portafolio (todo convertido a COP)
+      let totalInvestedCOP = 0, totalValueCOP = 0;
+      const allocData = [];
+      active.forEach(inv => {
+        const st = getInvestmentStats(inv);
+        const investedCOP = toCOP(st.totalInvested, st.currency);
+        const valueCOP = toCOP(st.currentValue, st.currency);
+        totalInvestedCOP += investedCOP;
+        totalValueCOP += valueCOP;
+        allocData.push({ name: inv.asset, valueCOP, color: inv.color || '#2dd4a0', emoji: inv.emoji });
+      });
+      const totalPL = totalValueCOP - totalInvestedCOP;
+      const totalPLPct = totalInvestedCOP > 0 ? (totalPL / totalInvestedCOP * 100) : 0;
+
+      // Allocation segments
+      allocData.sort((a, b) => b.valueCOP - a.valueCOP);
+      const allocBar = allocData.map(a => {
+        const pct = totalValueCOP > 0 ? (a.valueCOP / totalValueCOP * 100) : 0;
+        return `<div class="invest-alloc-seg" style="width:${pct}%;background:${a.color}" title="${escapeHTML(a.name)}: ${pct.toFixed(1)}%"></div>`;
+      }).join('');
+      const allocLegend = allocData.map(a => {
+        const pct = totalValueCOP > 0 ? (a.valueCOP / totalValueCOP * 100) : 0;
+        return `<div class="invest-alloc-row">
+          <span class="invest-alloc-dot" style="background:${a.color}"></span>
+          <span class="invest-alloc-name">${a.emoji || '💹'} ${escapeHTML(a.name)}</span>
+          <span class="invest-alloc-pct">${pct.toFixed(1)}%</span>
+          <span class="invest-alloc-val">${fmt(Math.round(a.valueCOP))}</span>
+        </div>`;
+      }).join('');
+
+      const renderCard = (inv) => {
+        const st = getInvestmentStats(inv);
+        const plClass = st.pl >= 0 ? 'pos' : 'neg';
+        const sign = st.pl >= 0 ? '+' : '';
+        const curSymbol = st.currency === 'USD' ? 'US$' : '$';
+        return `
+          <div class="project-card" style="border-left-color:${inv.color || '#2dd4a0'}" onclick="selectTab('__invest_${inv.id}')">
+            <div class="project-card-top">
+              <div class="project-card-name">
+                <span style="font-size:18px">${inv.emoji || '💹'}</span>
+                <span>${escapeHTML(inv.asset)}</span>
+                <span class="invest-currency-badge">${st.currency}</span>
+              </div>
+              <span class="invest-card-pl ${plClass}">${sign}${st.plPct.toFixed(1)}%</span>
+            </div>
+            <div class="project-card-stats">
+              <div class="project-stat-mini">
+                <div class="project-stat-mini-label">Invertido</div>
+                <div class="project-stat-mini-value">${curSymbol}${fmt(Math.round(st.totalInvested))}</div>
+              </div>
+              <div class="project-stat-mini">
+                <div class="project-stat-mini-label">Valor actual</div>
+                <div class="project-stat-mini-value ${st.pl >= 0 ? 'invest-pl-pos' : 'invest-pl-neg'}">${curSymbol}${fmt(Math.round(st.currentValue))}</div>
+              </div>
+            </div>
+            <div class="project-card-meta">
+              <span>📊 P&L: <strong class="${st.pl >= 0 ? 'invest-pl-pos' : 'invest-pl-neg'}">${sign}${curSymbol}${fmt(Math.round(st.pl))}</strong></span>
+              <span>📦 ${st.totalUnits.toLocaleString('es-CO', { maximumFractionDigits: 6 })} uds</span>
+              <span>🛒 ${st.purchaseCount} compras</span>
+            </div>
+          </div>`;
+      };
+
+      c.innerHTML = `
+        <div class="projects-header">
+          <div>
+            <div style="font-family:var(--font-display);font-size:24px;font-weight:800;letter-spacing:-1px;margin-bottom:4px">💹 Inversiones</div>
+            <div style="font-size:12px;color:var(--text-muted)">${active.length} activo(s) · Control de portafolio</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="btn-primary" onclick="openNewInvestment()">+ Nuevo activo</button>
+          </div>
+        </div>
+
+        <!-- Tasa USD -->
+        <div style="margin-bottom:20px">
+          <div class="invest-rate-box">
+            <span style="font-size:12px;color:var(--text-muted)">💵 Tasa USD→COP:</span>
+            <input type="number" id="usdRateInput" value="${S.usdRate}" onblur="setUsdRate(this.value)" step="any">
+            <button class="btn-xs" onclick="fetchUsdRate()" title="Traer tasa actual del mercado">🔄 Traer actual</button>
+            <span id="usdRateStatus" style="font-size:10px;color:var(--text-muted)"></span>
+          </div>
+        </div>
+
+        <!-- Panel de control en COP -->
+        <div class="summary-grid" style="margin-bottom:24px">
+          <div class="stat-card">
+            <div class="stat-card-label">💰 Total invertido (COP)</div>
+            <div class="stat-card-value accent">${fmt(Math.round(totalInvestedCOP))}</div>
+            <div class="stat-card-sub">${active.length} activos</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">📈 Valor actual (COP)</div>
+            <div class="stat-card-value ${totalPL >= 0 ? 'green' : 'red'}">${fmt(Math.round(totalValueCOP))}</div>
+            <div class="stat-card-sub">Al precio más reciente</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">📊 Ganancia / Pérdida</div>
+            <div class="stat-card-value ${totalPL >= 0 ? 'green' : 'red'}">${totalPL >= 0 ? '+' : ''}${fmt(Math.round(totalPL))}</div>
+            <div class="stat-card-sub ${totalPL >= 0 ? '' : ''}">${totalPL >= 0 ? '+' : ''}${totalPLPct.toFixed(2)}%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">🎯 Rendimiento</div>
+            <div class="stat-card-value ${totalPLPct >= 0 ? 'green' : 'red'}">${totalPLPct >= 0 ? '+' : ''}${totalPLPct.toFixed(1)}%</div>
+            <div class="stat-card-sub">${totalPLPct >= 0 ? 'En ganancia 📈' : 'En pérdida 📉'}</div>
+          </div>
+        </div>
+
+        ${allocData.length ? `
+        <div class="project-chart" style="margin-bottom:24px">
+          <div class="project-chart-title"><span>Distribución del portafolio</span><span style="text-transform:none;letter-spacing:0;font-size:10px">por valor actual (COP)</span></div>
+          <div class="invest-alloc-bar">${allocBar}</div>
+          <div class="invest-alloc-legend">${allocLegend}</div>
+        </div>` : ''}
+
+        <div class="recurring-section-title">📋 Mis activos</div>
+        ${active.length ? `<div class="projects-grid">${active.map(renderCard).join('')}</div>` : '<div class="empty-state"><div class="emoji">💹</div>No tienes activos aún.<br>Crea uno para empezar a registrar tus inversiones.</div>'}
+
+        ${inactive.length ? `
+          <div class="recurring-section-title" style="margin-top:28px">⏸ Inactivos (${inactive.length})</div>
+          <div class="projects-grid" style="opacity:.6">${inactive.map(renderCard).join('')}</div>
+        ` : ''}
+      `;
+    }
+
+    function renderInvestmentDetail(c, invId) {
+      const inv = S.investments[invId];
+      if (!inv) {
+        c.innerHTML = '<div class="empty-state"><div class="emoji">⚠️</div>Activo no encontrado.</div>';
+        return;
+      }
+      const st = getInvestmentStats(inv);
+      const curSymbol = st.currency === 'USD' ? 'US$' : '$';
+      const purchases = (inv.purchases || []).map((p, idx) => ({ ...p, idx })).sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      const prices = st.priceHistory.slice().reverse();
+
+      // Gráfica de evolución de valor (basada en historial de precios × unidades totales)
+      const chartPrices = st.priceHistory; // ascendente
+      const maxVal = Math.max(...chartPrices.map(ph => (parseFloat(ph.price) || 0) * st.totalUnits), st.totalInvested, 1);
+      const chartBars = chartPrices.length ? chartPrices.slice(-12).map(ph => {
+        const val = (parseFloat(ph.price) || 0) * st.totalUnits;
+        const h = maxVal > 0 ? (val / maxVal * 100) : 0;
+        const d = ph.date ? ph.date.slice(5) : '';
+        const isGain = val >= st.totalInvested;
+        return `<div class="project-chart-bar-group" title="${ph.date}: ${curSymbol}${fmt(Math.round(val))}">
+          <div class="project-chart-bar-stack">
+            <div class="project-chart-bar ${isGain ? 'income' : 'expense'}" style="height:${h}%;width:16px"></div>
+          </div>
+          <div class="project-chart-month">${d}</div>
+        </div>`;
+      }).join('') : '';
+
+      const sign = st.pl >= 0 ? '+' : '';
+
+      c.innerHTML = `
+        <div style="margin-bottom:14px"><button class="project-back-btn" onclick="selectTab('__inversiones__')">‹ Volver a Inversiones</button></div>
+
+        <div class="project-detail-header">
+          <div>
+            <div class="project-detail-title">
+              <span style="font-size:28px">${inv.emoji || '💹'}</span>
+              <span style="color:${inv.color || 'var(--text)'}">${escapeHTML(inv.asset)}</span>
+              <span class="invest-currency-badge" style="font-size:11px">${st.currency}</span>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted)">${inv.type || 'inversión'} · ${st.purchaseCount} compras · ${st.totalUnits.toLocaleString('es-CO', { maximumFractionDigits: 8 })} unidades</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button class="btn-primary" onclick="openPurchaseModal('${inv.id}')">+ Registrar compra</button>
+            <button class="btn-outline" onclick="openEditInvestment('${inv.id}')">✏ Editar</button>
+          </div>
+        </div>
+
+        <div class="summary-grid" style="margin-bottom:24px">
+          <div class="stat-card">
+            <div class="stat-card-label">💰 Invertido (${st.currency})</div>
+            <div class="stat-card-value accent">${curSymbol}${fmt(Math.round(st.totalInvested))}</div>
+            <div class="stat-card-sub">Precio prom: ${curSymbol}${st.avgPrice.toLocaleString('es-CO', { maximumFractionDigits: 4 })}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">📈 Valor actual (${st.currency})</div>
+            <div class="stat-card-value ${st.pl >= 0 ? 'green' : 'red'}">${curSymbol}${fmt(Math.round(st.currentValue))}</div>
+            <div class="stat-card-sub">Último precio: ${curSymbol}${st.lastPrice.toLocaleString('es-CO', { maximumFractionDigits: 4 })}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">📊 Ganancia / Pérdida</div>
+            <div class="stat-card-value ${st.pl >= 0 ? 'green' : 'red'}">${sign}${curSymbol}${fmt(Math.round(st.pl))}</div>
+            <div class="stat-card-sub">${sign}${st.plPct.toFixed(2)}%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">💵 Valor en COP</div>
+            <div class="stat-card-value ${st.pl >= 0 ? 'green' : 'red'}">${fmt(Math.round(toCOP(st.currentValue, st.currency)))}</div>
+            <div class="stat-card-sub">${st.currency === 'USD' ? `@ ${fmt(S.usdRate)}/USD` : 'pesos'}</div>
+          </div>
+        </div>
+
+        ${chartPrices.length >= 2 ? `
+        <div class="project-chart">
+          <div class="project-chart-title"><span>Evolución del valor</span><span style="text-transform:none;letter-spacing:0;font-size:10px">unidades × precio histórico</span></div>
+          <div class="project-chart-bars">${chartBars}</div>
+          <div class="project-chart-legend">
+            <span class="project-chart-legend-item"><span class="project-chart-legend-dot" style="background:var(--green)"></span>Sobre lo invertido</span>
+            <span class="project-chart-legend-item"><span class="project-chart-legend-dot" style="background:var(--red)"></span>Bajo lo invertido</span>
+          </div>
+        </div>` : ''}
+
+        <!-- COMPRAS -->
+        <div class="section-label" style="margin-bottom:14px">Compras (DCA) — ${purchases.length}</div>
+        <div class="invest-table-wrap">
+          <table class="invest-data-table">
+            <thead><tr><th>Fecha</th><th class="num">Unidades</th><th class="num">Precio/u</th><th class="num">Fee</th><th class="num">Total</th><th>Notas</th><th></th></tr></thead>
+            <tbody>
+              ${purchases.length ? purchases.map(p => {
+        const total = (parseFloat(p.units) || 0) * (parseFloat(p.pricePerUnit) || 0) + (parseFloat(p.fee) || 0);
+        return `<tr>
+                  <td>${p.date || '-'}</td>
+                  <td class="num">${(parseFloat(p.units) || 0).toLocaleString('es-CO', { maximumFractionDigits: 8 })}</td>
+                  <td class="num">${curSymbol}${(parseFloat(p.pricePerUnit) || 0).toLocaleString('es-CO', { maximumFractionDigits: 4 })}</td>
+                  <td class="num">${p.fee ? curSymbol + fmt(p.fee) : '-'}</td>
+                  <td class="num"><strong>${curSymbol}${fmt(Math.round(total))}</strong></td>
+                  <td style="font-size:10px;color:var(--text-muted)">${escapeHTML(p.notes || '')}</td>
+                  <td><span class="row-action" onclick="deletePurchase('${inv.id}', ${p.idx})" title="Eliminar compra">✕</span></td>
+                </tr>`;
+      }).join('') : '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:20px">Sin compras registradas. Usa "+ Registrar compra".</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- HISTORIAL DE PRECIOS -->
+        <div class="section-label" style="margin-bottom:14px">Seguimiento de precio — ${prices.length} registros</div>
+        <div class="invest-table-wrap">
+          <table class="invest-data-table">
+            <thead><tr><th>Fecha</th><th class="num">Precio/u (${st.currency})</th><th class="num">Valor portafolio</th><th class="num">P&L</th><th></th></tr></thead>
+            <tbody>
+              ${prices.length ? prices.map((ph, i) => {
+        const realIdx = st.priceHistory.length - 1 - i;
+        const val = (parseFloat(ph.price) || 0) * st.totalUnits;
+        const pl = val - st.totalInvested;
+        return `<tr>
+                  <td>${ph.date || '-'}</td>
+                  <td class="num">${curSymbol}${(parseFloat(ph.price) || 0).toLocaleString('es-CO', { maximumFractionDigits: 4 })}</td>
+                  <td class="num">${curSymbol}${fmt(Math.round(val))}</td>
+                  <td class="num ${pl >= 0 ? 'invest-pl-pos' : 'invest-pl-neg'}">${pl >= 0 ? '+' : ''}${curSymbol}${fmt(Math.round(pl))}</td>
+                  <td><span class="row-action" onclick="deletePriceEntry('${inv.id}', ${realIdx})" title="Eliminar registro">✕</span></td>
+                </tr>`;
+      }).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:14px">Sin registros de precio aún.</td></tr>'}
+            </tbody>
+          </table>
+          <div class="invest-add-price-row">
+            <input type="date" id="newPrice_date_${inv.id}" value="${today()}" style="flex:0 0 auto">
+            <input type="number" step="any" id="newPrice_val_${inv.id}" placeholder="Precio actual (${st.currency})" style="flex:1;min-width:120px">
+            <button class="btn-sm" onclick="addPriceEntry('${inv.id}')">+ Agregar precio</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // ── USD RATE ──
+    window.setUsdRate = function (v) {
+      const rate = parseFloat(v);
+      if (rate > 0) {
+        S.usdRate = rate;
+        localStorage.setItem('usdRate', rate);
+        renderMain();
+      }
+    };
+
+    window.fetchUsdRate = async function () {
+      const status = document.getElementById('usdRateStatus');
+      if (status) status.textContent = 'Consultando...';
+      try {
+        // Frankfurter: API gratis, sin key, sin límites molestos. Solo lee, no compromete datos.
+        const res = await fetch('https://api.frankfurter.app/latest?from=USD&to=COP');
+        if (!res.ok) throw new Error('no disponible');
+        const data = await res.json();
+        const rate = data?.rates?.COP;
+        if (rate) {
+          S.usdRate = Math.round(rate);
+          localStorage.setItem('usdRate', S.usdRate);
+          if (status) status.textContent = `✓ ${data.date}`;
+          renderMain();
+        } else throw new Error('sin datos');
+      } catch (e) {
+        if (status) status.textContent = '✗ No se pudo. Usa valor manual.';
+      }
+    };
+
+    // ── INVESTMENT CRUD ──
+    window.openNewInvestment = function () {
+      S.editInvestId = null;
+      document.getElementById('investModalTitle').textContent = 'Nuevo activo';
+      document.getElementById('inv_delete_btn').style.display = 'none';
+      sv('inv_asset', '');
+      sv('inv_emoji', '💹');
+      document.getElementById('inv_color').value = '#2dd4a0';
+      document.getElementById('inv_type').value = 'etf';
+      document.getElementById('inv_currency').value = 'USD';
+      document.getElementById('inv_active').checked = true;
+      openModal('investModal');
+    };
+
+    window.openEditInvestment = function (id) {
+      const inv = S.investments[id];
+      if (!inv) return;
+      S.editInvestId = id;
+      document.getElementById('investModalTitle').textContent = 'Editar activo';
+      document.getElementById('inv_delete_btn').style.display = '';
+      sv('inv_asset', inv.asset || '');
+      sv('inv_emoji', inv.emoji || '💹');
+      document.getElementById('inv_color').value = inv.color || '#2dd4a0';
+      document.getElementById('inv_type').value = inv.type || 'etf';
+      document.getElementById('inv_currency').value = inv.currency || 'USD';
+      document.getElementById('inv_active').checked = inv.active !== false;
+      openModal('investModal');
+    };
+
+    window.saveInvestment = async function () {
+      const asset = g('inv_asset').trim();
+      if (!asset) { toast('Pon un nombre', 'error'); return; }
+      const payload = {
+        asset,
+        type: g('inv_type'),
+        currency: g('inv_currency'),
+        emoji: g('inv_emoji').trim() || '💹',
+        color: g('inv_color') || '#2dd4a0',
+        active: document.getElementById('inv_active').checked,
+        updatedAt: Date.now()
+      };
+      if (S.editInvestId) {
+        await update(ref(db, 'investments/' + S.editInvestId), payload);
+        toast('Activo actualizado ✓', 'success');
+      } else {
+        payload.createdAt = Date.now();
+        payload.purchases = [];
+        payload.priceHistory = [];
+        await push(ref(db, 'investments'), payload);
+        toast('Activo creado ✓', 'success');
+      }
+      closeModal('investModal');
+    };
+
+    window.deleteInvestment = async function () {
+      if (!S.editInvestId) return;
+      const inv = S.investments[S.editInvestId];
+      if (!confirm(`¿Eliminar el activo "${inv?.asset}"?\n\nSe borra todo su historial de compras y precios. Esto no se puede deshacer.`)) return;
+      await remove(ref(db, 'investments/' + S.editInvestId));
+      toast('Activo eliminado', 'success');
+      closeModal('investModal');
+      S.activeTab = '__inversiones__';
+      renderSidebar();
+      renderMain();
+    };
+
+    // ── PURCHASES ──
+    window.openPurchaseModal = function (invId) {
+      const inv = S.investments[invId];
+      if (!inv) return;
+      S.editInvestId = invId;
+      const cur = inv.currency || 'COP';
+      document.getElementById('purchaseModalTitle').textContent = 'Registrar compra';
+      document.getElementById('purchaseAssetLabel').innerHTML = `${inv.emoji || '💹'} <strong>${escapeHTML(inv.asset)}</strong> · moneda ${cur}`;
+      document.getElementById('pur_currency_label').textContent = cur;
+      sv('pur_date', today());
+      sv('pur_units', '');
+      sv('pur_price', '');
+      sv('pur_fee', '');
+      sv('pur_notes', '');
+      document.getElementById('pur_total_preview').textContent = '';
+      document.getElementById('pur_create_movement').checked = false;
+      document.getElementById('pur_account_wrap').style.display = 'none';
+      // Populate accounts
+      const accSel = document.getElementById('pur_account');
+      accSel.innerHTML = Object.entries(S.accounts).map(([id, a]) => `<option value="${id}">${a.emoji || ''} ${escapeHTML(a.name)}</option>`).join('');
+      // Wire preview + checkbox
+      const updatePreview = () => {
+        const u = parseFloat(g('pur_units')) || 0;
+        const pr = parseFloat(g('pur_price')) || 0;
+        const fee = parseFloat(g('pur_fee')) || 0;
+        const total = u * pr + fee;
+        const sym = cur === 'USD' ? 'US$' : '$';
+        let txt = total > 0 ? `Total compra: ${sym}${fmt(Math.round(total))}` : '';
+        if (total > 0 && cur === 'USD') txt += ` ≈ ${fmt(Math.round(toCOP(total, 'USD')))} COP`;
+        document.getElementById('pur_total_preview').textContent = txt;
+      };
+      ['pur_units', 'pur_price', 'pur_fee'].forEach(id => {
+        document.getElementById(id).oninput = updatePreview;
+      });
+      document.getElementById('pur_create_movement').onchange = function () {
+        document.getElementById('pur_account_wrap').style.display = this.checked ? 'block' : 'none';
+      };
+      openModal('purchaseModal');
+    };
+
+    window.savePurchase = async function () {
+      const invId = S.editInvestId;
+      const inv = S.investments[invId];
+      if (!inv) return;
+      const units = parseFloat(g('pur_units'));
+      const price = parseFloat(g('pur_price'));
+      if (!units || units <= 0) { toast('Unidades inválidas', 'error'); return; }
+      if (!price || price <= 0) { toast('Precio inválido', 'error'); return; }
+      const fee = parseFloat(g('pur_fee')) || 0;
+      const purchase = {
+        date: g('pur_date') || today(),
+        units, pricePerUnit: price, fee,
+        notes: g('pur_notes').trim(),
+        createdAt: Date.now()
+      };
+      const purchases = (inv.purchases || []).slice();
+      purchases.push(purchase);
+
+      // Si hay precio de compra y no hay historial, sembrar el primer precio = precio de compra
+      const priceHistory = (inv.priceHistory || []).slice();
+      if (priceHistory.length === 0) {
+        priceHistory.push({ date: purchase.date, price: price });
+      }
+
+      await update(ref(db, 'investments/' + invId), { purchases, priceHistory });
+
+      // Crear movimiento de salida si se marcó
+      if (document.getElementById('pur_create_movement').checked) {
+        const accId = g('pur_account');
+        if (accId) {
+          const cur = inv.currency || 'COP';
+          const totalNative = units * price + fee;
+          const montoCOP = Math.round(toCOP(totalNative, cur));
+          await push(ref(db, 'transactions'), {
+            accountId: accId,
+            tipo: 'transferencia',
+            transf_dir: 'salida',
+            desc: `Compra ${inv.asset}`,
+            entity: 'Inversión',
+            cat: 'Inversión',
+            monto: montoCOP,
+            date: purchase.date,
+            notes: `${units} uds @ ${cur === 'USD' ? 'US$' : '$'}${price}${cur === 'USD' ? ` (tasa ${S.usdRate})` : ''}`,
+            createdAt: Date.now()
+          });
+          toast('Compra y movimiento registrados ✓', 'success');
+        } else {
+          toast('Compra registrada ✓', 'success');
+        }
+      } else {
+        toast('Compra registrada ✓', 'success');
+      }
+      closeModal('purchaseModal');
+    };
+
+    window.deletePurchase = async function (invId, idx) {
+      const inv = S.investments[invId];
+      if (!inv || !inv.purchases) return;
+      if (!confirm('¿Eliminar esta compra? No se puede deshacer.')) return;
+      const purchases = inv.purchases.slice();
+      purchases.splice(idx, 1);
+      await update(ref(db, 'investments/' + invId), { purchases });
+      toast('Compra eliminada', 'success');
+    };
+
+    // ── PRICE TRACKING ──
+    window.addPriceEntry = async function (invId) {
+      const inv = S.investments[invId];
+      if (!inv) return;
+      const dateEl = document.getElementById('newPrice_date_' + invId);
+      const valEl = document.getElementById('newPrice_val_' + invId);
+      const date = dateEl?.value || today();
+      const price = parseFloat(valEl?.value);
+      if (!price || price <= 0) { toast('Precio inválido', 'error'); return; }
+      const priceHistory = (inv.priceHistory || []).slice();
+      // Si ya existe un registro para esa fecha, reemplazar
+      const existingIdx = priceHistory.findIndex(ph => ph.date === date);
+      if (existingIdx >= 0) {
+        priceHistory[existingIdx] = { date, price };
+      } else {
+        priceHistory.push({ date, price });
+      }
+      await update(ref(db, 'investments/' + invId), { priceHistory });
+      toast('Precio registrado ✓', 'success');
+    };
+
+    window.deletePriceEntry = async function (invId, idx) {
+      const inv = S.investments[invId];
+      if (!inv || !inv.priceHistory) return;
+      if (!confirm('¿Eliminar este registro de precio?')) return;
+      const priceHistory = inv.priceHistory.slice();
+      priceHistory.splice(idx, 1);
+      await update(ref(db, 'investments/' + invId), { priceHistory });
+      toast('Registro eliminado', 'success');
+    };
+
     // ═══════════════════════════════════
     //  WINDOW ACTIONS
     // ═══════════════════════════════════
@@ -6738,6 +7489,21 @@
         return { project: p, ingresos: ing, gastos: gas, neto: ing - gas, count: pTxs.length };
       });
 
+      // Inversiones (siempre histórico completo, convertido a COP para el reporte)
+      const investList = Object.entries(S.investments || {}).map(([id, inv]) => ({ id, ...inv })).filter(inv => inv.active !== false);
+      const investStatsArr = investList.map(inv => {
+        const st = getInvestmentStats(inv);
+        return {
+          inv, st,
+          investedCOP: toCOP(st.totalInvested, st.currency),
+          valueCOP: toCOP(st.currentValue, st.currency),
+          plCOP: toCOP(st.pl, st.currency)
+        };
+      });
+      const investTotalInvestedCOP = investStatsArr.reduce((s, x) => s + x.investedCOP, 0);
+      const investTotalValueCOP = investStatsArr.reduce((s, x) => s + x.valueCOP, 0);
+      const investTotalPLCOP = investTotalValueCOP - investTotalInvestedCOP;
+
       // Movimientos ordenados por fecha desc
       const sortedTxs = txArr.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
@@ -6880,6 +7646,31 @@ ${projectStatsArr.length ? `
         <td class="num red-text">${fmt(ps.gastos)}</td>
         <td class="num"><strong style="color:${ps.neto >= 0 ? '#059669' : '#dc2626'}">${fmt(ps.neto)}</strong></td>
         <td class="num">${ps.count}</td>
+      </tr>`).join('')}
+  </tbody>
+</table>`: ''}
+
+${investStatsArr.length ? `
+<h2>Inversiones (portafolio en COP)</h2>
+<div class="kpi-grid" style="margin-bottom:12px">
+  <div class="kpi blue"><div class="kpi-label">Invertido</div><div class="kpi-value">${fmt(Math.round(investTotalInvestedCOP))}</div></div>
+  <div class="kpi ${investTotalPLCOP >= 0 ? 'green' : 'red'}"><div class="kpi-label">Valor actual</div><div class="kpi-value">${fmt(Math.round(investTotalValueCOP))}</div></div>
+  <div class="kpi ${investTotalPLCOP >= 0 ? 'green' : 'red'}"><div class="kpi-label">Ganancia/Pérdida</div><div class="kpi-value">${investTotalPLCOP >= 0 ? '+' : ''}${fmt(Math.round(investTotalPLCOP))}</div></div>
+  <div class="kpi gold"><div class="kpi-label">Tasa USD usada</div><div class="kpi-value">${fmt(S.usdRate)}</div></div>
+</div>
+<table class="small-table">
+  <thead><tr><th>Activo</th><th>Moneda</th><th class="num">Unidades</th><th class="num">P. prom</th><th class="num">P. actual</th><th class="num">Invertido (COP)</th><th class="num">Valor (COP)</th><th class="num">P&L (COP)</th></tr></thead>
+  <tbody>
+    ${investStatsArr.map(x => `
+      <tr>
+        <td><strong>${(x.inv.emoji || '💹')} ${x.inv.asset || ''}</strong></td>
+        <td>${x.st.currency}</td>
+        <td class="num">${x.st.totalUnits.toLocaleString('es-CO', { maximumFractionDigits: 6 })}</td>
+        <td class="num">${x.st.avgPrice.toLocaleString('es-CO', { maximumFractionDigits: 2 })}</td>
+        <td class="num">${x.st.lastPrice.toLocaleString('es-CO', { maximumFractionDigits: 2 })}</td>
+        <td class="num">${fmt(Math.round(x.investedCOP))}</td>
+        <td class="num">${fmt(Math.round(x.valueCOP))}</td>
+        <td class="num"><strong style="color:${x.plCOP >= 0 ? '#059669' : '#dc2626'}">${x.plCOP >= 0 ? '+' : ''}${fmt(Math.round(x.plCOP))}</strong></td>
       </tr>`).join('')}
   </tbody>
 </table>`: ''}
