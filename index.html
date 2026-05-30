@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Finanzas · DashboardV12</title>
+  <title>Finanzas · Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap"
@@ -1129,6 +1129,163 @@
       border-radius: var(--radius);
       overflow-x: auto;
       margin-bottom: 24px;
+    }
+
+    /* ── CATEGORY DETAIL MODAL ── */
+    .catdetail-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .catdetail-summary-item {
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+    }
+    .catdetail-summary-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 4px;
+    }
+    .catdetail-summary-value {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -.5px;
+    }
+    .catdetail-concentration {
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+    .catdetail-concentration-title {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 10px;
+    }
+    .catdetail-conc-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 0;
+      font-size: 12px;
+    }
+    .catdetail-conc-rank {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent-glow);
+      color: var(--accent);
+      font-size: 9px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .catdetail-conc-name {
+      flex: 1;
+      color: var(--text-dim);
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .catdetail-conc-count {
+      font-size: 10px;
+      color: var(--text-muted);
+      background: var(--surface);
+      padding: 1px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+    .catdetail-conc-amount {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--text);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .catdetail-sort-bar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .catdetail-sort-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 5px 11px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all .15s;
+      -webkit-tap-highlight-color: rgba(124, 106, 245, .25);
+    }
+    .catdetail-sort-btn:hover { color: var(--text-dim); border-color: var(--text-muted); }
+    .catdetail-sort-btn.active {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .catdetail-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .catdetail-table th {
+      text-align: left;
+      padding: 8px 10px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .catdetail-table th:hover { color: var(--accent); }
+    .catdetail-table th.num { text-align: right; }
+    .catdetail-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+    .catdetail-table td.num {
+      text-align: right;
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+      color: var(--red);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .catdetail-table tr:last-child td { border-bottom: none; }
+    .catdetail-table .desc-cell { color: var(--text); font-weight: 500; }
+    .catdetail-table .meta-cell { font-size: 10px; color: var(--text-muted); }
+    .catdetail-list-wrap {
+      max-height: 42vh;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    @media (max-width: 768px) {
+      .catdetail-summary { grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+      .catdetail-summary-value { font-size: 13px; }
+      .catdetail-summary-item { padding: 8px 10px; }
+      .catdetail-table { font-size: 11px; }
+      .catdetail-table th, .catdetail-table td { padding: 6px 7px; }
+      .catdetail-list-wrap { max-height: 50vh; }
     }
 
     .invest-add-price-row {
@@ -2797,6 +2954,20 @@
       gap: 10px
     }
 
+    .bar-row.clickable-cat {
+      padding: 4px 8px;
+      margin: 0 -8px;
+      border-radius: 8px;
+      transition: background .15s;
+      -webkit-tap-highlight-color: rgba(124, 106, 245, .25);
+    }
+    .bar-row.clickable-cat:hover {
+      background: var(--surface2);
+    }
+    .bar-row.clickable-cat:active {
+      background: rgba(124, 106, 245, .15);
+    }
+
     .bar-label {
       font-size: 11px;
       color: var(--text-dim);
@@ -4043,7 +4214,7 @@
     <div style="display:flex;align-items:center;gap:10px">
       <button class="mobile-menu-btn" onclick="openMenuSheet()" title="Abrir menú">☰</button>
       <div class="header-logo">
-        <div class="logo-dot"></div>Flujo<span>V14</span>
+        <div class="logo-dot"></div>Flujo<span>V15</span>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden">
@@ -4365,6 +4536,17 @@
     </div>
   </div>
 
+  <!-- ════════ CATEGORY DETAIL MODAL ════════ -->
+  <div class="modal-overlay" id="catDetailModal">
+    <div class="modal" style="max-width:680px">
+      <div class="modal-title" id="catDetailTitle">Detalle de categoría</div>
+      <div id="catDetailContent"></div>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="closeModal('catDetailModal')">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ════════ PROJECT EDIT MODAL ════════ -->
   <div class="modal-overlay" id="projectModal">
     <div class="modal" style="max-width:480px">
@@ -4465,7 +4647,7 @@
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
       <div class="login-logo">
-        <div class="logo-dot"></div>Flujo<span>V14</span>
+        <div class="logo-dot"></div>Flujo<span>V15</span>
       </div>
       <div class="login-subtitle">Ingresa tus credenciales para continuar</div>
       <div class="login-field">
@@ -5411,7 +5593,7 @@
               const limit = monthBudget[cat] || 0;
               const limitPct = limit > 0 ? (amt / limit * 100) : 0;
               const overBudget = limit > 0 && amt > limit;
-              return `<div class="bar-row" title="${escapeAttr(cat)}${limit > 0 ? ` · Tope ${fmt(limit)}` : ''}">
+              return `<div class="bar-row clickable-cat" onclick="openCategoryDetailModal('${escapeAttr(cat)}', ${S.reportYear}, ${S.reportMonth})" title="Ver detalle de ${escapeAttr(cat)}" style="cursor:pointer">
                 <div class="bar-label" title="${escapeAttr(cat)}">${escapeHTML(cat)}${limit > 0 ? ` <span style="color:${overBudget ? 'var(--red)' : 'var(--text-muted)'};font-size:9px">${overBudget ? '⚠' : '✓'}</span>` : ''}</div>
                 <div class="bar-track"><div class="bar-fill ${overBudget ? 'expense' : 'expense'}" style="width:${pct}%;${overBudget ? 'background:var(--red)' : ''}"></div></div>
                 <div class="bar-val">${fmt(amt)}${limit > 0 ? `<div style="font-size:9px;color:var(--text-muted);font-weight:400">/ ${fmt(limit)}</div>` : ''}</div>
@@ -6284,6 +6466,147 @@
       document.getElementById('txDetailContent').innerHTML = summaryHTML + '<div class="txdetail-list">' + listHTML + '</div>';
       openModal('txDetailModal');
     };
+
+    // ═══════════════════════════════════════
+    //  CATEGORY DETAIL MODAL (click en barra de categoría)
+    // ═══════════════════════════════════════
+    window._catDetailState = { cat: null, year: null, monthIdx: null, sort: 'amount-desc' };
+
+    window.openCategoryDetailModal = function (cat, year, monthIdx) {
+      window._catDetailState = { cat, year, monthIdx, sort: 'amount-desc' };
+      renderCategoryDetail();
+      openModal('catDetailModal');
+    };
+
+    window.setCatDetailSort = function (sort) {
+      window._catDetailState.sort = sort;
+      renderCategoryDetail();
+    };
+
+    function renderCategoryDetail() {
+      const { cat, year, monthIdx, sort } = window._catDetailState;
+      const monthLabel = `${MONTH_NAMES[monthIdx]} ${year}`;
+
+      // Movimientos de gasto de esa categoría en ese mes
+      let txs = Object.entries(S.transactions).filter(([, t]) => {
+        if (t.tipo !== 'salida') return false;
+        if ((t.cat || 'Otro') !== cat) return false;
+        if (!t.date) return false;
+        const d = new Date(t.date + 'T00:00:00');
+        return d.getFullYear() === year && d.getMonth() === monthIdx;
+      }).map(([id, t]) => ({ id, ...t }));
+
+      const total = txs.reduce((s, t) => s + (t.monto || 0), 0);
+      const count = txs.length;
+      const avg = count > 0 ? total / count : 0;
+
+      // Presupuesto de la categoría
+      const monthKey = `${year}-${String(monthIdx + 1).padStart(2, '0')}`;
+      const budget = getBudgetForMonth(monthKey);
+      const limit = budget[cat] || 0;
+
+      // Concentración: agrupar por descripción+empresa
+      const concMap = {};
+      txs.forEach(t => {
+        const key = (t.desc || '(sin descripción)').trim() + (t.entity ? ` · ${t.entity.trim()}` : '');
+        if (!concMap[key]) concMap[key] = { label: key, total: 0, count: 0 };
+        concMap[key].total += (t.monto || 0);
+        concMap[key].count++;
+      });
+      const concentration = Object.values(concMap).sort((a, b) => b.total - a.total).slice(0, 5);
+
+      // Ordenamiento de la tabla
+      const sorters = {
+        'amount-desc': (a, b) => (b.monto || 0) - (a.monto || 0),
+        'amount-asc': (a, b) => (a.monto || 0) - (b.monto || 0),
+        'date-desc': (a, b) => (b.date || '').localeCompare(a.date || ''),
+        'date-asc': (a, b) => (a.date || '').localeCompare(b.date || ''),
+      };
+      txs.sort(sorters[sort] || sorters['amount-desc']);
+
+      const sortBtn = (key, label) => `<button class="catdetail-sort-btn ${sort === key ? 'active' : ''}" onclick="setCatDetailSort('${key}')">${label}</button>`;
+
+      // Header de columna con flecha
+      const arrow = (forKey) => {
+        if (sort === forKey + '-desc') return ' ↓';
+        if (sort === forKey + '-asc') return ' ↑';
+        return '';
+      };
+      const toggleSort = (forKey) => {
+        // Si ya está en desc, cambia a asc, sino desc
+        return sort === forKey + '-desc' ? forKey + '-asc' : forKey + '-desc';
+      };
+
+      const html = `
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">${monthLabel}</div>
+
+        <div class="catdetail-summary">
+          <div class="catdetail-summary-item">
+            <div class="catdetail-summary-label">Total gastado</div>
+            <div class="catdetail-summary-value" style="color:var(--red)">${fmt(total)}</div>
+          </div>
+          <div class="catdetail-summary-item">
+            <div class="catdetail-summary-label">Movimientos</div>
+            <div class="catdetail-summary-value">${count}</div>
+          </div>
+          <div class="catdetail-summary-item">
+            <div class="catdetail-summary-label">Promedio</div>
+            <div class="catdetail-summary-value" style="font-size:15px">${fmt(Math.round(avg))}</div>
+          </div>
+        </div>
+
+        ${limit > 0 ? `<div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;padding:8px 12px;background:var(--surface2);border-radius:8px">
+          🎯 Presupuesto: <strong style="color:${total > limit ? 'var(--red)' : 'var(--green)'}">${fmt(total)} / ${fmt(limit)}</strong> (${(total / limit * 100).toFixed(0)}%) ${total > limit ? `· Excedido por ${fmt(total - limit)}` : `· Disponible ${fmt(limit - total)}`}
+        </div>` : ''}
+
+        ${concentration.length > 1 ? `
+        <div class="catdetail-concentration">
+          <div class="catdetail-concentration-title">📊 Dónde se concentra el gasto</div>
+          ${concentration.map((c, i) => `
+            <div class="catdetail-conc-row">
+              <span class="catdetail-conc-rank">${i + 1}</span>
+              <span class="catdetail-conc-name">${escapeHTML(c.label)}</span>
+              <span class="catdetail-conc-count">${c.count}×</span>
+              <span class="catdetail-conc-amount">${fmt(c.total)}</span>
+            </div>`).join('')}
+        </div>` : ''}
+
+        <div class="catdetail-sort-bar">
+          ${sortBtn('amount-desc', '💰 Mayor monto')}
+          ${sortBtn('amount-asc', '🪙 Menor monto')}
+          ${sortBtn('date-desc', '🕐 Más reciente')}
+          ${sortBtn('date-asc', '📅 Más antiguo')}
+        </div>
+
+        <div class="catdetail-list-wrap">
+          <table class="catdetail-table">
+            <thead>
+              <tr>
+                <th onclick="setCatDetailSort('${toggleSort('date')}')">Fecha${arrow('date')}</th>
+                <th>Descripción / Empresa</th>
+                <th>Cuenta</th>
+                <th class="num" onclick="setCatDetailSort('${toggleSort('amount')}')">Monto${arrow('amount')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${txs.length ? txs.map(t => `
+                <tr>
+                  <td style="white-space:nowrap;font-size:11px;color:var(--text-muted)">${t.date || '-'}</td>
+                  <td>
+                    <div class="desc-cell">${escapeHTML(t.desc || '(sin descripción)')}</div>
+                    ${t.entity ? `<div class="meta-cell">${escapeHTML(t.entity)}</div>` : ''}
+                  </td>
+                  <td style="font-size:11px;color:var(--text-muted)">${S.accounts[t.accountId] ? (S.accounts[t.accountId].emoji || '') + ' ' + escapeHTML(S.accounts[t.accountId].name) : '-'}</td>
+                  <td class="num">${fmt(t.monto || 0)}</td>
+                </tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:24px">Sin movimientos</td></tr>'}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      document.getElementById('catDetailTitle').innerHTML = `Gastos en "${escapeHTML(cat)}"`;
+      document.getElementById('catDetailContent').innerHTML = html;
+    }
 
     // ═══════════════════════════════════════
     //  PROYECTOS
