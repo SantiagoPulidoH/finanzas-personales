@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Finanzas · Dashboard</title>
+  <title>Finanzas · DashboardV12</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap"
@@ -4214,7 +4214,7 @@
     <div style="display:flex;align-items:center;gap:10px">
       <button class="mobile-menu-btn" onclick="openMenuSheet()" title="Abrir menú">☰</button>
       <div class="header-logo">
-        <div class="logo-dot"></div>Flujo<span>V15</span>
+        <div class="logo-dot"></div>Flujo<span>V16</span>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden">
@@ -4647,7 +4647,7 @@
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
       <div class="login-logo">
-        <div class="logo-dot"></div>Flujo<span>V15</span>
+        <div class="logo-dot"></div>Flujo<span>V16</span>
       </div>
       <div class="login-subtitle">Ingresa tus credenciales para continuar</div>
       <div class="login-field">
@@ -4678,11 +4678,14 @@
      ════════════════════════════════════ -->
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-    import { getDatabase, ref, set, push, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+    import { getDatabase, ref, set, push, onValue, remove, update, get } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
     let db = null;
     let auth = null;
+    let userPath = '';  // 'users/{uid}/' — se setea al autenticar. Aísla los datos por usuario.
+    // Helper: construye una referencia a un path bajo el usuario actual
+    function uref(path) { return ref(db, userPath + path); }
     const S = {
       activeTab: null,
       accounts: {}, transactions: {}, debts: {}, categories: [],
@@ -4725,14 +4728,18 @@
       auth = getAuth(app);
 
       // Escuchar estado de autenticación
-      onAuthStateChanged(auth, user => {
+      onAuthStateChanged(auth, async user => {
         if (user) {
-          // Usuario autenticado: ocultar login, mostrar app
+          // Usuario autenticado: setear su path aislado
+          userPath = `users/${user.uid}/`;
           document.getElementById('loginScreen').style.display = 'none';
           document.getElementById('syncStatus').textContent = user.email;
+          // Migración automática (solo para Santiago, una vez): copia datos viejos globales a su espacio
+          await maybeMigrateLegacyData(user);
           startDataListeners();
         } else {
           // No autenticado: mostrar login, ocultar app
+          userPath = '';
           document.getElementById('loginScreen').style.display = 'flex';
           document.getElementById('tabsWrapper').innerHTML = '';
           document.getElementById('mainContent').innerHTML = '';
@@ -4741,17 +4748,65 @@
       });
     }
 
+    // ════ MIGRACIÓN DE DATOS LEGACY (global → por-usuario) ════
+    // Las versiones anteriores guardaban todo en rutas globales (/accounts, /transactions...).
+    // Esta función copia esos datos al espacio del usuario actual UNA SOLA VEZ, de forma no destructiva.
+    // Los datos viejos NO se borran — quedan como respaldo.
+    async function maybeMigrateLegacyData(user) {
+      const LEGACY_NODES = ['accounts', 'transactions', 'debts', 'categories', 'projects', 'investments', 'budgets', 'recurring', 'sidebarOrder'];
+      try {
+        // ¿El usuario ya tiene datos en su espacio? Si sí, no migrar.
+        const userAccountsSnap = await get(ref(db, `users/${user.uid}/accounts`));
+        const userTxSnap = await get(ref(db, `users/${user.uid}/transactions`));
+        const userHasData = (userAccountsSnap.exists() && Object.keys(userAccountsSnap.val() || {}).length > 0)
+          || (userTxSnap.exists() && Object.keys(userTxSnap.val() || {}).length > 0);
+        if (userHasData) return; // Ya tiene su espacio poblado, nada que migrar
+
+        // ¿Existen datos legacy globales? Solo migra quien tenga acceso a ellos (Santiago).
+        const legacyTxSnap = await get(ref(db, 'transactions'));
+        const legacyAccSnap = await get(ref(db, 'accounts'));
+        const legacyHasData = (legacyTxSnap.exists() && Object.keys(legacyTxSnap.val() || {}).length > 0)
+          || (legacyAccSnap.exists() && Object.keys(legacyAccSnap.val() || {}).length > 0);
+        if (!legacyHasData) return; // No hay nada legacy (ej. Helen) → arranca limpio
+
+        // Confirmar con el usuario
+        const ok = confirm(
+          'Detecté datos de una versión anterior asociados a tu acceso.\n\n' +
+          '¿Migrarlos a tu cuenta personal ahora?\n\n' +
+          'Esto COPIA tus cuentas, movimientos, deudas, proyectos e inversiones a tu espacio privado. ' +
+          'Los datos originales NO se borran (quedan como respaldo).'
+        );
+        if (!ok) return;
+
+        // Copiar cada nodo legacy → users/{uid}/nodo
+        const updates = {};
+        for (const node of LEGACY_NODES) {
+          const snap = await get(ref(db, node));
+          if (snap.exists()) {
+            updates[`users/${user.uid}/${node}`] = snap.val();
+          }
+        }
+        if (Object.keys(updates).length) {
+          await update(ref(db), updates);
+          alert('✅ Migración completada. Tus datos ahora están en tu cuenta personal y privada.');
+        }
+      } catch (e) {
+        console.error('[migración]', e);
+        // Si falla (ej. permisos), no rompe nada — el usuario simplemente arranca con su espacio
+      }
+    }
+
     function startDataListeners() {
-      onValue(ref(db, 'categories'), snap => {
+      onValue(uref('categories'), snap => {
         const d = snap.val();
-        if (!d) { set(ref(db, 'categories'), DEFAULT_CATS); }
+        if (!d) { set(uref('categories'), DEFAULT_CATS); }
         else { S.categories = Array.isArray(d) ? d : Object.values(d); renderMain(); }
       });
 
-      onValue(ref(db, 'accounts'), snap => {
+      onValue(uref('accounts'), snap => {
         const d = snap.val() || {};
         if (!Object.keys(d).length) {
-          DEFAULT_ACCOUNTS.forEach(a => set(ref(db, 'accounts/' + a.id), a));
+          DEFAULT_ACCOUNTS.forEach(a => set(uref('accounts/' + a.id), a));
         } else {
           S.accounts = d;
           if (!S.activeTab) S.activeTab = Object.keys(d)[0];
@@ -4761,33 +4816,33 @@
         setLoad(false);
       });
 
-      onValue(ref(db, 'transactions'), snap => {
+      onValue(uref('transactions'), snap => {
         S.transactions = snap.val() || {};
         renderTabs(); renderMain();
       });
 
-      onValue(ref(db, 'debts'), snap => {
+      onValue(uref('debts'), snap => {
         S.debts = snap.val() || {};
         renderMain();
       });
 
-      onValue(ref(db, 'sidebarOrder'), snap => {
+      onValue(uref('sidebarOrder'), snap => {
         const v = snap.val();
         S.sidebarOrder = Array.isArray(v) ? v : (v ? Object.values(v) : []);
         renderSidebar();
       });
 
-      onValue(ref(db, 'recurring'), snap => {
+      onValue(uref('recurring'), snap => {
         S.recurring = snap.val() || {};
         renderMain();
       });
 
-      onValue(ref(db, 'budgets'), snap => {
+      onValue(uref('budgets'), snap => {
         S.budgets = snap.val() || {};
         renderMain();
       });
 
-      onValue(ref(db, 'projects'), snap => {
+      onValue(uref('projects'), snap => {
         S.projects = snap.val() || {};
         // Auto-seed: si no existe ningún proyecto y existe la categoría "Consultoria SPH", crearlo
         const hasAny = Object.keys(S.projects).length > 0;
@@ -4796,7 +4851,7 @@
         );
         if (!hasAny && hasConsultoriaCat && !S._projectSeedAttempted) {
           S._projectSeedAttempted = true;
-          push(ref(db, 'projects'), {
+          push(uref('projects'), {
             name: 'Consultoria SPH',
             category: 'Consultoria SPH',
             color: '#7c6af5',
@@ -4808,7 +4863,7 @@
         renderMain();
       });
 
-      onValue(ref(db, 'investments'), snap => {
+      onValue(uref('investments'), snap => {
         S.investments = snap.val() || {};
         renderMain();
       });
@@ -5053,7 +5108,7 @@
 
     async function saveSidebarOrder() {
       if (!db) return;
-      try { await set(ref(db, 'sidebarOrder'), S.sidebarOrder); } catch (_) { }
+      try { await set(uref('sidebarOrder'), S.sidebarOrder); } catch (_) { }
     }
 
     // ════ BALANCE ════
@@ -5891,19 +5946,19 @@
     window.saveBudgetCategory = async function (cat, value) {
       if (!db) return;
       const v = parseFloat(value) || 0;
-      await update(ref(db, `budgets/${S.budgetMonth}`), { [cat]: v });
+      await update(uref(`budgets/${S.budgetMonth}`), { [cat]: v });
       toast(`Presupuesto ${cat}: ${fmt(v)}`, 'success');
     };
     window.saveIncomeBudget = async function (value) {
       if (!db) return;
       const v = parseFloat(value) || 0;
-      await update(ref(db, `budgets/${S.budgetMonth}`), { __ingreso__: v });
+      await update(uref(`budgets/${S.budgetMonth}`), { __ingreso__: v });
       toast(`Ingreso planeado: ${fmt(v)}`, 'success');
     };
     window.copyBudgetFromPrev = async function (prevKey) {
       if (!confirm(`¿Copiar todo el presupuesto de ${prevKey} a ${S.budgetMonth}?`)) return;
       const data = S.budgets[prevKey] || {};
-      await set(ref(db, `budgets/${S.budgetMonth}`), data);
+      await set(uref(`budgets/${S.budgetMonth}`), data);
       toast('Presupuesto copiado ✓', 'success');
     };
 
@@ -6165,11 +6220,11 @@
         updatedAt: Date.now()
       };
       if (S.editRecurringId) {
-        await update(ref(db, 'recurring/' + S.editRecurringId), payload);
+        await update(uref('recurring/' + S.editRecurringId), payload);
         toast('Gasto fijo actualizado ✓', 'success');
       } else {
         payload.createdAt = Date.now();
-        await push(ref(db, 'recurring'), payload);
+        await push(uref('recurring'), payload);
         toast('Gasto fijo creado ✓', 'success');
       }
       closeModal('recurringModal');
@@ -6177,12 +6232,12 @@
 
     window.deleteRecurring = async function (id) {
       if (!confirm('¿Eliminar este gasto fijo? Las transacciones vinculadas no se borran.')) return;
-      await remove(ref(db, 'recurring/' + id));
+      await remove(uref('recurring/' + id));
       toast('Eliminado', 'success');
     };
 
     window.toggleRecurringActive = async function (id, active) {
-      await update(ref(db, 'recurring/' + id), { active });
+      await update(uref('recurring/' + id), { active });
       toast(active ? 'Reactivado' : 'Pausado', 'success');
     };
 
@@ -6206,14 +6261,14 @@
       if (candidates.length) {
         // Vincular la primera coincidencia
         const [txId] = candidates[0];
-        await update(ref(db, 'transactions/' + txId), { recurringId: id });
+        await update(uref('transactions/' + txId), { recurringId: id });
         toast(`Vinculado a "${r.name}" ✓`, 'success');
       } else {
         // Crear nueva transacción
         if (!confirm(`No encontré una transacción candidata. ¿Crear automáticamente la transacción de "${r.name}" por ${fmt(r.monto)} hoy?`)) return;
         const accId = r.accountId || Object.keys(S.accounts)[0];
         if (!accId) { toast('No hay cuentas', 'error'); return; }
-        await push(ref(db, 'transactions'), {
+        await push(uref('transactions'), {
           accountId: accId,
           tipo: 'salida',
           desc: r.name,
@@ -6240,13 +6295,13 @@
         return d.getFullYear() === y && d.getMonth() === m - 1;
       });
       for (const [txId] of linked) {
-        await update(ref(db, 'transactions/' + txId), { recurringId: null });
+        await update(uref('transactions/' + txId), { recurringId: null });
       }
       toast('Vínculo eliminado', 'success');
     };
 
     window.acceptSuggestion = async function (s) {
-      await push(ref(db, 'recurring'), {
+      await push(uref('recurring'), {
         name: s.desc,
         monto: s.avgMonto,
         cat: s.cat,
@@ -6328,7 +6383,7 @@
     window.confirmMatch = async function () {
       if (!S.pendingMatch) return;
       const { txId, recId } = S.pendingMatch;
-      await update(ref(db, 'transactions/' + txId), { recurringId: recId });
+      await update(uref('transactions/' + txId), { recurringId: recId });
       toast('Transacción vinculada ✓', 'success');
       dismissMatch();
     };
@@ -6896,11 +6951,11 @@
         updatedAt: Date.now()
       };
       if (S.editProjectId) {
-        await update(ref(db, 'projects/' + S.editProjectId), payload);
+        await update(uref('projects/' + S.editProjectId), payload);
         toast('Proyecto actualizado ✓', 'success');
       } else {
         payload.createdAt = Date.now();
-        await push(ref(db, 'projects'), payload);
+        await push(uref('projects'), payload);
         toast('Proyecto creado ✓', 'success');
       }
       closeModal('projectModal');
@@ -6910,7 +6965,7 @@
       if (!S.editProjectId) return;
       const p = S.projects[S.editProjectId];
       if (!confirm(`¿Eliminar el proyecto "${p?.name}"?\n\nLos movimientos asociados a la categoría "${p?.category}" NO se borran — solo se desvincula la agrupación de proyecto.`)) return;
-      await remove(ref(db, 'projects/' + S.editProjectId));
+      await remove(uref('projects/' + S.editProjectId));
       toast('Proyecto eliminado', 'success');
       closeModal('projectModal');
       S.activeTab = '__proyectos__';
@@ -7281,13 +7336,13 @@
         updatedAt: Date.now()
       };
       if (S.editInvestId) {
-        await update(ref(db, 'investments/' + S.editInvestId), payload);
+        await update(uref('investments/' + S.editInvestId), payload);
         toast('Activo actualizado ✓', 'success');
       } else {
         payload.createdAt = Date.now();
         payload.purchases = [];
         payload.priceHistory = [];
-        await push(ref(db, 'investments'), payload);
+        await push(uref('investments'), payload);
         toast('Activo creado ✓', 'success');
       }
       closeModal('investModal');
@@ -7297,7 +7352,7 @@
       if (!S.editInvestId) return;
       const inv = S.investments[S.editInvestId];
       if (!confirm(`¿Eliminar el activo "${inv?.asset}"?\n\nSe borra todo su historial de compras y precios. Esto no se puede deshacer.`)) return;
-      await remove(ref(db, 'investments/' + S.editInvestId));
+      await remove(uref('investments/' + S.editInvestId));
       toast('Activo eliminado', 'success');
       closeModal('investModal');
       S.activeTab = '__inversiones__';
@@ -7369,7 +7424,7 @@
         priceHistory.push({ date: purchase.date, price: price });
       }
 
-      await update(ref(db, 'investments/' + invId), { purchases, priceHistory });
+      await update(uref('investments/' + invId), { purchases, priceHistory });
 
       // Crear movimiento de salida si se marcó
       if (document.getElementById('pur_create_movement').checked) {
@@ -7378,7 +7433,7 @@
           const cur = inv.currency || 'COP';
           const totalNative = units * price + fee;
           const montoCOP = Math.round(toCOP(totalNative, cur));
-          await push(ref(db, 'transactions'), {
+          await push(uref('transactions'), {
             accountId: accId,
             tipo: 'transferencia',
             transf_dir: 'salida',
@@ -7406,7 +7461,7 @@
       if (!confirm('¿Eliminar esta compra? No se puede deshacer.')) return;
       const purchases = inv.purchases.slice();
       purchases.splice(idx, 1);
-      await update(ref(db, 'investments/' + invId), { purchases });
+      await update(uref('investments/' + invId), { purchases });
       toast('Compra eliminada', 'success');
     };
 
@@ -7427,7 +7482,7 @@
       } else {
         priceHistory.push({ date, price });
       }
-      await update(ref(db, 'investments/' + invId), { priceHistory });
+      await update(uref('investments/' + invId), { priceHistory });
       toast('Precio registrado ✓', 'success');
     };
 
@@ -7437,7 +7492,7 @@
       if (!confirm('¿Eliminar este registro de precio?')) return;
       const priceHistory = inv.priceHistory.slice();
       priceHistory.splice(idx, 1);
-      await update(ref(db, 'investments/' + invId), { priceHistory });
+      await update(uref('investments/' + invId), { priceHistory });
       toast('Registro eliminado', 'success');
     };
 
@@ -7654,13 +7709,18 @@
 
     window.exportBackup = function () {
       const data = {
-        version: 'flujo-co-v7',
+        version: 'flujo-co-v16',
         exportedAt: new Date().toISOString(),
         user: auth.currentUser?.email || 'unknown',
         accounts: S.accounts,
         transactions: S.transactions,
         debts: S.debts,
         categories: S.categories,
+        projects: S.projects,
+        investments: S.investments,
+        budgets: S.budgets,
+        recurring: S.recurring,
+        sidebarOrder: S.sidebarOrder,
       };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -7716,10 +7776,16 @@
       setLoad(true);
       try {
         const updates = {};
-        updates['accounts'] = data.accounts || {};
-        updates['transactions'] = data.transactions || {};
-        updates['debts'] = data.debts || {};
-        updates['categories'] = data.categories || [];
+        updates[userPath + 'accounts'] = data.accounts || {};
+        updates[userPath + 'transactions'] = data.transactions || {};
+        updates[userPath + 'debts'] = data.debts || {};
+        updates[userPath + 'categories'] = data.categories || [];
+        // Nodos adicionales (si el backup los trae)
+        if (data.projects) updates[userPath + 'projects'] = data.projects;
+        if (data.investments) updates[userPath + 'investments'] = data.investments;
+        if (data.budgets) updates[userPath + 'budgets'] = data.budgets;
+        if (data.recurring) updates[userPath + 'recurring'] = data.recurring;
+        if (data.sidebarOrder) updates[userPath + 'sidebarOrder'] = data.sidebarOrder;
         await update(ref(db), updates);
         document.getElementById('restoreInfo').innerHTML = '<span style="color:var(--green)">✅ Restauración completada. Recargando...</span>';
         toast('Datos restaurados ✓', 'success');
@@ -8116,7 +8182,7 @@ ${investStatsArr.length ? `
       const payload = { accountId: accId, tipo: S.tipo, desc, entity: g('tx_entity'), cat: g('tx_cat'), monto, date: g('tx_date'), notes: g('tx_notes'), createdAt: Date.now() };
       if (S.tipo === 'transferencia') payload.transf_dir = S.transf_dir;
       setLoad(true);
-      const newRef = await push(ref(db, 'transactions'), payload);
+      const newRef = await push(uref('transactions'), payload);
       clearForm(); toast('Movimiento registrado ✓', 'success'); setLoad(false);
       // Detectar match con gasto fijo (solo si es salida)
       if (S.tipo === 'salida') {
@@ -8129,7 +8195,7 @@ ${investStatsArr.length ? `
 
     window.delTx = async function (id) {
       if (!confirm('¿Eliminar este movimiento?')) return;
-      await remove(ref(db, 'transactions/' + id)); toast('Eliminado', 'success');
+      await remove(uref('transactions/' + id)); toast('Eliminado', 'success');
     };
 
     window.openEditTx = function (id) {
@@ -8176,21 +8242,21 @@ ${investStatsArr.length ? `
       setLoad(true);
       const payload = { tipo: S.editTxTipo, desc, entity: g('edit_entity'), cat: g('edit_cat'), monto, date: g('edit_date'), notes: g('edit_notes') };
       if (S.editTxTipo === 'transferencia') payload.transf_dir = S.editTransfDir;
-      await update(ref(db, 'transactions/' + S.editTxId), payload);
+      await update(uref('transactions/' + S.editTxId), payload);
       closeModal('editTxModal'); toast('Movimiento actualizado ✓', 'success'); setLoad(false);
     };
 
     // Accounts
     window.openSetBal = function (id) { S.editBalanceAcc = id; sv('sb_balance', S.accounts[id]?.balance || 0); openModal('setBalanceModal'); };
     window.saveCurrentBalance = async function () {
-      await update(ref(db, 'accounts/' + S.editBalanceAcc), { balance: parseFloat(g('sb_balance')) || 0 });
+      await update(uref('accounts/' + S.editBalanceAcc), { balance: parseFloat(g('sb_balance')) || 0 });
       closeModal('setBalanceModal'); toast('Saldo base actualizado ✓', 'success');
     };
     window.createAccount = async function () {
       const name = document.getElementById('na_name').value.trim();
       if (!name) { toast('Escribe el nombre', 'error'); return; }
       const id = name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-      await set(ref(db, 'accounts/' + id), { id, name, emoji: document.getElementById('na_emoji').value.trim() || '🏦', balance: parseFloat(document.getElementById('na_balance').value) || 0 });
+      await set(uref('accounts/' + id), { id, name, emoji: document.getElementById('na_emoji').value.trim() || '🏦', balance: parseFloat(document.getElementById('na_balance').value) || 0 });
       S.activeTab = id; closeModal('newAccountModal'); toast(`Cuenta "${name}" creada ✓`, 'success');
     };
 
@@ -8204,13 +8270,13 @@ ${investStatsArr.length ? `
       if (!name) return;
       if (S.categories.includes(name)) { toast('Ya existe', 'error'); return; }
       S.categories.push(name);
-      await set(ref(db, 'categories'), S.categories);
+      await set(uref('categories'), S.categories);
       inp.value = ''; renderCatTags(); toast(`"${name}" agregada ✓`, 'success');
     };
     window.removeCat = async function (i) {
       if (!confirm(`¿Eliminar categoría "${S.categories[i]}"?`)) return;
       S.categories.splice(i, 1);
-      await set(ref(db, 'categories'), S.categories);
+      await set(uref('categories'), S.categories);
       renderCatTags(); toast('Categoría eliminada', 'success');
     };
 
@@ -8231,7 +8297,7 @@ ${investStatsArr.length ? `
       if (!name) { toast('Agrega el nombre', 'error'); return; }
       if (!amount || amount <= 0) { toast('Monto inválido', 'error'); return; }
       setLoad(true);
-      await push(ref(db, 'debts'), { tipo: S.newDebtTipo, name, amount, start: g('debt_start'), due: g('debt_due'), interest: parseFloat(g('debt_interest')) || 0, installments: parseInt(g('debt_installments')) || 1, notes: g('debt_notes'), status: 'pending', createdAt: Date.now() });
+      await push(uref('debts'), { tipo: S.newDebtTipo, name, amount, start: g('debt_start'), due: g('debt_due'), interest: parseFloat(g('debt_interest')) || 0, installments: parseInt(g('debt_installments')) || 1, notes: g('debt_notes'), status: 'pending', createdAt: Date.now() });
       closeModal('newDebtModal'); toast('Deuda registrada ✓', 'success'); setLoad(false);
     };
     window.openEditDebt = function (id) {
@@ -8251,14 +8317,14 @@ ${investStatsArr.length ? `
       if (!name) { toast('Agrega nombre', 'error'); return; }
       if (!amount || amount <= 0) { toast('Monto inválido', 'error'); return; }
       setLoad(true);
-      await update(ref(db, 'debts/' + S.editDebtId), { tipo: S.editDebtTipo, name, amount, start: g('ed_start'), due: g('ed_due'), interest: parseFloat(g('ed_interest')) || 0, installments: parseInt(g('ed_installments')) || 1, notes: g('ed_notes') });
+      await update(uref('debts/' + S.editDebtId), { tipo: S.editDebtTipo, name, amount, start: g('ed_start'), due: g('ed_due'), interest: parseFloat(g('ed_interest')) || 0, installments: parseInt(g('ed_installments')) || 1, notes: g('ed_notes') });
       closeModal('editDebtModal'); toast('Deuda actualizada ✓', 'success'); setLoad(false);
     };
-    window.markPaid = async id => { await update(ref(db, 'debts/' + id), { status: 'paid' }); toast('Marcada como pagada ✓', 'success'); };
-    window.markPending = async id => { await update(ref(db, 'debts/' + id), { status: 'pending' }); toast('Reactivada', 'success'); };
+    window.markPaid = async id => { await update(uref('debts/' + id), { status: 'paid' }); toast('Marcada como pagada ✓', 'success'); };
+    window.markPending = async id => { await update(uref('debts/' + id), { status: 'pending' }); toast('Reactivada', 'success'); };
     window.delDebt = async function (id) {
       if (!confirm('¿Eliminar esta deuda?')) return;
-      await remove(ref(db, 'debts/' + id)); toast('Eliminada', 'success');
+      await remove(uref('debts/' + id)); toast('Eliminada', 'success');
     };
 
     // Summary filter
