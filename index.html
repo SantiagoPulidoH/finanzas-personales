@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Finanzas · DashboardV12</title>
+  <title>Finanzas · DashboardV17</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap"
@@ -1161,6 +1161,80 @@
       border-radius: var(--radius-sm);
       padding: 12px 14px;
       margin-bottom: 16px;
+    }
+
+    /* Desglose por subcategoría */
+    .catdetail-subcat {
+      background: var(--surface2);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      border-left: 3px solid var(--accent);
+    }
+    .catdetail-subcat-row {
+      padding: 6px 0;
+    }
+    .catdetail-subcat-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+    .catdetail-subcat-name {
+      flex: 1;
+      color: var(--text);
+      font-weight: 500;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .catdetail-subcat-count {
+      font-size: 10px;
+      color: var(--text-muted);
+      background: var(--surface);
+      padding: 1px 7px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+    .catdetail-subcat-amount {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--text);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .catdetail-subcat-pct {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent);
+      min-width: 36px;
+      text-align: right;
+      font-weight: 700;
+    }
+    .catdetail-subcat-track {
+      height: 5px;
+      background: var(--surface);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .catdetail-subcat-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 4px;
+      transition: width .4s;
+    }
+    .subcat-pill {
+      display: inline-block;
+      font-size: 9px;
+      padding: 1px 7px;
+      border-radius: 8px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      font-weight: 600;
+      vertical-align: middle;
+      margin-left: 4px;
     }
     .catdetail-concentration-title {
       font-size: 10px;
@@ -4214,7 +4288,7 @@
     <div style="display:flex;align-items:center;gap:10px">
       <button class="mobile-menu-btn" onclick="openMenuSheet()" title="Abrir menú">☰</button>
       <div class="header-logo">
-        <div class="logo-dot"></div>Flujo<span>V16</span>
+        <div class="logo-dot"></div>Flujo<span>V17</span>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden">
@@ -4310,6 +4384,7 @@
         <div class="field"><label>Descripción</label><input id="edit_desc" placeholder="Descripción"></div>
         <div class="field"><label>Empresa / Persona</label><input id="edit_entity" placeholder="Quién"></div>
         <div class="field"><label>Categoría</label><select id="edit_cat"></select></div>
+        <div class="field"><label>Subcategoría <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label><input id="edit_subcat" placeholder="Ej: Mercado, Restaurante..." autocomplete="off"></div>
         <div class="field"><label>Monto (COP)</label><input id="edit_monto" type="number" placeholder="0"></div>
         <div class="field"><label>Fecha</label><input id="edit_date" type="date"></div>
       </div>
@@ -4647,7 +4722,7 @@
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
       <div class="login-logo">
-        <div class="logo-dot"></div>Flujo<span>V16</span>
+        <div class="logo-dot"></div>Flujo<span>V17</span>
       </div>
       <div class="login-subtitle">Ingresa tus credenciales para continuar</div>
       <div class="login-field">
@@ -5200,7 +5275,12 @@
           <input id="tx_entity" placeholder="Ej: Éxito, Juan Pérez" autocomplete="off" oninput="onEntityInput()" onfocus="onEntityInput()" onblur="setTimeout(hideAutocomplete,150)">
           <div class="autocomplete-dropdown" id="tx_entity_ac"></div>
         </div>
-        <div class="field"><label>Categoría</label><select id="tx_cat">${S.categories.map(c => `<option>${c}</option>`).join('')}</select></div>
+        <div class="field"><label>Categoría</label><select id="tx_cat" onchange="onCatChange()">${S.categories.map(c => `<option>${c}</option>`).join('')}</select></div>
+        <div class="field" style="position:relative">
+          <label>Subcategoría <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+          <input id="tx_subcat" placeholder="Ej: Mercado, Restaurante..." autocomplete="off" oninput="onSubcatInput()" onfocus="onSubcatInput()" onblur="setTimeout(hideAutocomplete,150)">
+          <div class="autocomplete-dropdown" id="tx_subcat_ac"></div>
+        </div>
         <div class="field">
           <label>Monto (COP)</label>
           <input id="tx_monto" type="number" placeholder="0" min="0" oninput="onMontoInput()">
@@ -5231,7 +5311,7 @@
     <div class="tx-icon ${iconClass}">${icon}</div>
     <div class="tx-info">
       <div class="tx-desc">${t.desc || '(sin descripción)'}</div>
-      <div class="tx-meta">${t.entity ? `<span>${t.entity}</span>` : ''}<span class="tx-cat">${t.cat || ''}</span>${t.notes ? `<span>${t.notes}</span>` : ''}</div>
+      <div class="tx-meta">${t.entity ? `<span>${t.entity}</span>` : ''}<span class="tx-cat">${t.cat || ''}</span>${t.subcat ? `<span class="subcat-pill">${t.subcat}</span>` : ''}${t.notes ? `<span>${t.notes}</span>` : ''}</div>
     </div>
     <div class="tx-amount">
       <div class="amount ${amtClass}">${sign}${fmt(t.monto)}</div>
@@ -6592,6 +6672,23 @@
         return sort === forKey + '-desc' ? forKey + '-asc' : forKey + '-desc';
       };
 
+      // ── Desglose por subcategoría (solo aparece si hay subcategorías en uso) ──
+      const subcatMap = {};
+      let withSubcat = 0;
+      txs.forEach(t => {
+        if (t.subcat && t.subcat.trim()) {
+          const key = t.subcat.trim();
+          const nk = normalizeText(key);
+          if (!subcatMap[nk]) subcatMap[nk] = { label: key, total: 0, count: 0 };
+          subcatMap[nk].total += (t.monto || 0);
+          subcatMap[nk].count++;
+          withSubcat += (t.monto || 0);
+        }
+      });
+      const subcats = Object.values(subcatMap).sort((a, b) => b.total - a.total);
+      const sinSubcat = total - withSubcat;
+      const maxSubcat = subcats.length ? subcats[0].total : 1;
+
       const html = `
         <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">${monthLabel}</div>
 
@@ -6626,6 +6723,31 @@
             </div>`).join('')}
         </div>` : ''}
 
+        ${subcats.length ? `
+        <div class="catdetail-subcat">
+          <div class="catdetail-concentration-title">🏷️ Desglose por subcategoría</div>
+          ${subcats.map(sc => {
+            const pct = total > 0 ? (sc.total / total * 100) : 0;
+            const barW = maxSubcat > 0 ? (sc.total / maxSubcat * 100) : 0;
+            return `<div class="catdetail-subcat-row">
+              <div class="catdetail-subcat-head">
+                <span class="catdetail-subcat-name">${escapeHTML(sc.label)}</span>
+                <span class="catdetail-subcat-count">${sc.count}×</span>
+                <span class="catdetail-subcat-amount">${fmt(sc.total)}</span>
+                <span class="catdetail-subcat-pct">${pct.toFixed(0)}%</span>
+              </div>
+              <div class="catdetail-subcat-track"><div class="catdetail-subcat-fill" style="width:${barW}%"></div></div>
+            </div>`;
+          }).join('')}
+          ${sinSubcat > 0.5 ? `<div class="catdetail-subcat-row" style="opacity:.6">
+            <div class="catdetail-subcat-head">
+              <span class="catdetail-subcat-name" style="font-style:italic">Sin subcategoría</span>
+              <span class="catdetail-subcat-amount">${fmt(sinSubcat)}</span>
+              <span class="catdetail-subcat-pct">${total > 0 ? (sinSubcat / total * 100).toFixed(0) : 0}%</span>
+            </div>
+          </div>` : ''}
+        </div>` : ''}
+
         <div class="catdetail-sort-bar">
           ${sortBtn('amount-desc', '💰 Mayor monto')}
           ${sortBtn('amount-asc', '🪙 Menor monto')}
@@ -6648,7 +6770,7 @@
                 <tr>
                   <td style="white-space:nowrap;font-size:11px;color:var(--text-muted)">${t.date || '-'}</td>
                   <td>
-                    <div class="desc-cell">${escapeHTML(t.desc || '(sin descripción)')}</div>
+                    <div class="desc-cell">${escapeHTML(t.desc || '(sin descripción)')}${t.subcat ? ` <span class="subcat-pill">${escapeHTML(t.subcat)}</span>` : ''}</div>
                     ${t.entity ? `<div class="meta-cell">${escapeHTML(t.entity)}</div>` : ''}
                   </td>
                   <td style="font-size:11px;color:var(--text-muted)">${S.accounts[t.accountId] ? (S.accounts[t.accountId].emoji || '') + ' ' + escapeHTML(S.accounts[t.accountId].name) : '-'}</td>
@@ -7609,6 +7731,56 @@
       hideAutocomplete();
     };
 
+    // ── SUBCATEGORÍA: autocomplete basado en subcategorías ya usadas EN LA MISMA CATEGORÍA ──
+    function buildSubcatIndex(currentCat) {
+      const map = {};
+      Object.values(S.transactions).forEach(t => {
+        if (!t.subcat) return;
+        // Sugerir prioritariamente las de la misma categoría
+        const sameCat = currentCat && normalizeText(t.cat) === normalizeText(currentCat);
+        const key = t.subcat.trim();
+        if (!key) return;
+        const nk = normalizeText(key);
+        if (!map[nk]) map[nk] = { label: key, count: 0, sameCat: false };
+        map[nk].count++;
+        if (sameCat) map[nk].sameCat = true;
+      });
+      // Ordenar: primero las de la misma categoría, luego por frecuencia
+      return Object.values(map).sort((a, b) => {
+        if (a.sameCat !== b.sameCat) return a.sameCat ? -1 : 1;
+        return b.count - a.count;
+      });
+    }
+
+    window.onSubcatInput = function () {
+      const inp = document.getElementById('tx_subcat');
+      const dd = document.getElementById('tx_subcat_ac');
+      if (!inp || !dd) return;
+      const q = inp.value.trim().toLowerCase();
+      const currentCat = g('tx_cat');
+      const idx = buildSubcatIndex(currentCat);
+      let matches = q ? idx.filter(x => x.label.toLowerCase().includes(q)) : idx;
+      matches = matches.slice(0, 8);
+      if (!matches.length) { dd.classList.remove('show'); return; }
+      dd.innerHTML = matches.map(m => `
+        <div class="autocomplete-item" onmousedown="selectSubcatSuggestion('${escapeAttr(m.label)}')">
+          <div class="ac-main">${escapeHTML(m.label)}</div>
+          <div class="ac-sub">${m.sameCat ? `<span class="ac-tag">en ${escapeHTML(currentCat)}</span>` : ''}<span style="margin-left:auto">×${m.count}</span></div>
+        </div>`).join('');
+      dd.classList.add('show');
+    };
+
+    window.selectSubcatSuggestion = function (subcat) {
+      sv('tx_subcat', subcat);
+      hideAutocomplete();
+    };
+
+    // Cuando cambia la categoría, refrescar sugerencias de subcategoría si el campo está enfocado
+    window.onCatChange = function () {
+      const subcatInput = document.getElementById('tx_subcat');
+      if (subcatInput && document.activeElement === subcatInput) onSubcatInput();
+    };
+
     window.hideAutocomplete = function () {
       document.querySelectorAll('.autocomplete-dropdown').forEach(el => el.classList.remove('show'));
     };
@@ -8181,6 +8353,8 @@ ${investStatsArr.length ? `
       if (!monto || monto <= 0) { toast('Monto inválido', 'error'); return; }
       const payload = { accountId: accId, tipo: S.tipo, desc, entity: g('tx_entity'), cat: g('tx_cat'), monto, date: g('tx_date'), notes: g('tx_notes'), createdAt: Date.now() };
       if (S.tipo === 'transferencia') payload.transf_dir = S.transf_dir;
+      const subcat = g('tx_subcat').trim();
+      if (subcat) payload.subcat = subcat;
       setLoad(true);
       const newRef = await push(uref('transactions'), payload);
       clearForm(); toast('Movimiento registrado ✓', 'success'); setLoad(false);
@@ -8205,6 +8379,7 @@ ${investStatsArr.length ? `
       setEditTipo(t.tipo);
       sv('edit_desc', t.desc || ''); sv('edit_entity', t.entity || ''); sv('edit_monto', t.monto || 0);
       sv('edit_date', t.date || today()); sv('edit_notes', t.notes || '');
+      sv('edit_subcat', t.subcat || '');
       const sel = document.getElementById('edit_cat');
       sel.innerHTML = S.categories.map(c => `<option value="${c}"${c === t.cat ? ' selected' : ''}>${c}</option>`).join('');
       openModal('editTxModal');
@@ -8242,6 +8417,8 @@ ${investStatsArr.length ? `
       setLoad(true);
       const payload = { tipo: S.editTxTipo, desc, entity: g('edit_entity'), cat: g('edit_cat'), monto, date: g('edit_date'), notes: g('edit_notes') };
       if (S.editTxTipo === 'transferencia') payload.transf_dir = S.editTransfDir;
+      const subcat = g('edit_subcat').trim();
+      payload.subcat = subcat || null;  // null borra el campo si se vacía
       await update(uref('transactions/' + S.editTxId), payload);
       closeModal('editTxModal'); toast('Movimiento actualizado ✓', 'success'); setLoad(false);
     };
@@ -8354,7 +8531,7 @@ ${investStatsArr.length ? `
 
     // Helpers
     window.clearForm = function () {
-      ['tx_desc', 'tx_entity', 'tx_notes', 'tx_monto'].forEach(id => sv(id, ''));
+      ['tx_desc', 'tx_entity', 'tx_notes', 'tx_monto', 'tx_subcat'].forEach(id => sv(id, ''));
       sv('tx_date', today());
       hideAutocomplete();
       const warn = document.getElementById('tx_monto_warn');
