@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Finanzas · DashboardV17</title>
+  <title>Finanzas · DashboardV18</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap"
@@ -674,16 +674,19 @@
       transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
       -webkit-tap-highlight-color: rgba(124, 106, 245, .25);
     }
+
     .kpi-card.clickable:hover,
     .stat-card.clickable:hover {
       transform: translateY(-2px);
       border-color: var(--accent);
       box-shadow: 0 6px 20px rgba(124, 106, 245, .15);
     }
+
     .kpi-card.clickable:active,
     .stat-card.clickable:active {
       transform: translateY(0);
     }
+
     .kpi-card.clickable::after {
       content: '👁';
       position: absolute;
@@ -693,7 +696,10 @@
       opacity: .4;
       transition: opacity .15s;
     }
-    .kpi-card.clickable:hover::after { opacity: 1; }
+
+    .kpi-card.clickable:hover::after {
+      opacity: 1;
+    }
 
     /* ═════════════════════════════════════
        TX DETAIL MODAL
@@ -707,23 +713,27 @@
       background: var(--surface2);
       border-radius: var(--radius-sm);
     }
+
     .txdetail-summary-item {
       display: flex;
       flex-direction: column;
       gap: 4px;
     }
+
     .txdetail-summary-label {
       font-size: 10px;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: .8px;
     }
+
     .txdetail-summary-value {
       font-family: var(--font-display);
       font-size: 18px;
       font-weight: 700;
       letter-spacing: -.5px;
     }
+
     .txdetail-list {
       max-height: 50vh;
       overflow-y: auto;
@@ -732,6 +742,7 @@
       gap: 8px;
       padding-right: 4px;
     }
+
     .txdetail-row {
       display: grid;
       grid-template-columns: 36px 1fr auto;
@@ -742,9 +753,19 @@
       border-radius: var(--radius-sm);
       border-left: 3px solid var(--border);
     }
-    .txdetail-row.entrada { border-left-color: var(--green); }
-    .txdetail-row.salida { border-left-color: var(--red); }
-    .txdetail-row.transferencia { border-left-color: var(--gold); }
+
+    .txdetail-row.entrada {
+      border-left-color: var(--green);
+    }
+
+    .txdetail-row.salida {
+      border-left-color: var(--red);
+    }
+
+    .txdetail-row.transferencia {
+      border-left-color: var(--gold);
+    }
+
     .txdetail-icon {
       width: 32px;
       height: 32px;
@@ -755,10 +776,26 @@
       font-size: 14px;
       background: var(--surface);
     }
-    .txdetail-icon.entrada { background: var(--green-dim); color: var(--green); }
-    .txdetail-icon.salida { background: var(--red-dim); color: var(--red); }
-    .txdetail-icon.transferencia { background: var(--gold-dim); color: var(--gold); }
-    .txdetail-info { min-width: 0; }
+
+    .txdetail-icon.entrada {
+      background: var(--green-dim);
+      color: var(--green);
+    }
+
+    .txdetail-icon.salida {
+      background: var(--red-dim);
+      color: var(--red);
+    }
+
+    .txdetail-icon.transferencia {
+      background: var(--gold-dim);
+      color: var(--gold);
+    }
+
+    .txdetail-info {
+      min-width: 0;
+    }
+
     .txdetail-desc {
       font-size: 12px;
       font-weight: 500;
@@ -767,6 +804,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+
     .txdetail-meta {
       font-size: 10px;
       color: var(--text-muted);
@@ -775,12 +813,14 @@
       flex-wrap: wrap;
       margin-top: 2px;
     }
+
     .txdetail-meta .cat-tag {
       padding: 1px 6px;
       background: var(--surface);
       border-radius: 8px;
       font-size: 9px;
     }
+
     .txdetail-amount {
       font-family: var(--font-mono);
       font-size: 13px;
@@ -789,14 +829,25 @@
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
     }
-    .txdetail-amount.entrada { color: var(--green); }
-    .txdetail-amount.salida { color: var(--red); }
-    .txdetail-amount.transferencia { color: var(--gold); }
+
+    .txdetail-amount.entrada {
+      color: var(--green);
+    }
+
+    .txdetail-amount.salida {
+      color: var(--red);
+    }
+
+    .txdetail-amount.transferencia {
+      color: var(--gold);
+    }
+
     .txdetail-date {
       font-size: 9px;
       color: var(--text-muted);
       margin-top: 2px;
     }
+
     .txdetail-empty {
       text-align: center;
       padding: 30px;
@@ -815,11 +866,13 @@
       gap: 14px;
       margin-bottom: 24px;
     }
+
     .projects-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
       gap: 14px;
     }
+
     .project-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -831,11 +884,13 @@
       border-left: 4px solid var(--accent);
       -webkit-tap-highlight-color: rgba(124, 106, 245, .25);
     }
+
     .project-card:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 24px rgba(0, 0, 0, .25);
       border-color: var(--accent);
     }
+
     .project-card-top {
       display: flex;
       align-items: center;
@@ -843,6 +898,7 @@
       gap: 10px;
       margin-bottom: 12px;
     }
+
     .project-card-name {
       font-family: var(--font-display);
       font-size: 16px;
@@ -852,21 +908,25 @@
       align-items: center;
       gap: 8px;
     }
+
     .project-card-actions {
       display: flex;
       gap: 6px;
     }
+
     .project-card-stats {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
       margin-bottom: 8px;
     }
+
     .project-stat-mini {
       background: var(--surface2);
       border-radius: 8px;
       padding: 8px 10px;
     }
+
     .project-stat-mini-label {
       font-size: 9px;
       color: var(--text-muted);
@@ -874,12 +934,14 @@
       letter-spacing: .5px;
       margin-bottom: 3px;
     }
+
     .project-stat-mini-value {
       font-family: var(--font-mono);
       font-size: 13px;
       font-weight: 700;
       font-variant-numeric: tabular-nums;
     }
+
     .project-card-meta {
       font-size: 10px;
       color: var(--text-muted);
@@ -887,6 +949,7 @@
       gap: 10px;
       flex-wrap: wrap;
     }
+
     .project-back-btn {
       background: none;
       border: 1px solid var(--border);
@@ -901,10 +964,12 @@
       gap: 6px;
       transition: all .15s;
     }
+
     .project-back-btn:hover {
       color: var(--accent);
       border-color: var(--accent);
     }
+
     .project-detail-header {
       display: flex;
       align-items: flex-start;
@@ -913,6 +978,7 @@
       gap: 14px;
       margin-bottom: 24px;
     }
+
     .project-detail-title {
       font-family: var(--font-display);
       font-size: 26px;
@@ -932,6 +998,7 @@
       padding: 18px;
       margin-bottom: 24px;
     }
+
     .project-chart-title {
       font-size: 11px;
       text-transform: uppercase;
@@ -942,6 +1009,7 @@
       align-items: center;
       justify-content: space-between;
     }
+
     .project-chart-bars {
       display: flex;
       align-items: flex-end;
@@ -950,6 +1018,7 @@
       padding-bottom: 24px;
       position: relative;
     }
+
     .project-chart-bar-group {
       flex: 1;
       display: flex;
@@ -959,6 +1028,7 @@
       position: relative;
       min-width: 0;
     }
+
     .project-chart-bar-stack {
       display: flex;
       gap: 2px;
@@ -967,6 +1037,7 @@
       align-items: flex-end;
       justify-content: center;
     }
+
     .project-chart-bar {
       width: 12px;
       min-height: 2px;
@@ -974,9 +1045,19 @@
       transition: all .3s;
       position: relative;
     }
-    .project-chart-bar.income { background: var(--green); }
-    .project-chart-bar.expense { background: var(--red); }
-    .project-chart-bar:hover { opacity: .8; }
+
+    .project-chart-bar.income {
+      background: var(--green);
+    }
+
+    .project-chart-bar.expense {
+      background: var(--red);
+    }
+
+    .project-chart-bar:hover {
+      opacity: .8;
+    }
+
     .project-chart-month {
       position: absolute;
       bottom: -22px;
@@ -985,6 +1066,7 @@
       font-family: var(--font-mono);
       white-space: nowrap;
     }
+
     .project-chart-legend {
       display: flex;
       gap: 14px;
@@ -992,11 +1074,13 @@
       color: var(--text-muted);
       margin-top: 14px;
     }
+
     .project-chart-legend-item {
       display: flex;
       align-items: center;
       gap: 5px;
     }
+
     .project-chart-legend-dot {
       width: 10px;
       height: 10px;
@@ -1004,19 +1088,42 @@
     }
 
     @media (max-width: 768px) {
-      .txdetail-summary { grid-template-columns: 1fr 1fr; }
-      .txdetail-list { max-height: 60vh; }
-      .project-card-stats { grid-template-columns: 1fr 1fr; }
-      .project-detail-title { font-size: 20px; }
-      .project-chart-bars { height: 100px; }
-      .project-chart-bar { width: 8px; }
+      .txdetail-summary {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .txdetail-list {
+        max-height: 60vh;
+      }
+
+      .project-card-stats {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .project-detail-title {
+        font-size: 20px;
+      }
+
+      .project-chart-bars {
+        height: 100px;
+      }
+
+      .project-chart-bar {
+        width: 8px;
+      }
     }
 
     /* ═══════════════════════════════════════
        INVERSIONES
        ═══════════════════════════════════════ */
-    .invest-pl-pos { color: var(--green) !important; }
-    .invest-pl-neg { color: var(--red) !important; }
+    .invest-pl-pos {
+      color: var(--green) !important;
+    }
+
+    .invest-pl-neg {
+      color: var(--red) !important;
+    }
+
     .invest-card-pl {
       font-family: var(--font-mono);
       font-size: 12px;
@@ -1025,8 +1132,17 @@
       border-radius: 20px;
       white-space: nowrap;
     }
-    .invest-card-pl.pos { background: var(--green-dim); color: var(--green); }
-    .invest-card-pl.neg { background: var(--red-dim); color: var(--red); }
+
+    .invest-card-pl.pos {
+      background: var(--green-dim);
+      color: var(--green);
+    }
+
+    .invest-card-pl.neg {
+      background: var(--red-dim);
+      color: var(--red);
+    }
+
     .invest-currency-badge {
       font-size: 9px;
       padding: 1px 7px;
@@ -1036,6 +1152,7 @@
       font-weight: 600;
       letter-spacing: .3px;
     }
+
     .invest-alloc-bar {
       height: 10px;
       border-radius: 6px;
@@ -1044,31 +1161,53 @@
       display: flex;
       margin: 14px 0 6px;
     }
+
     .invest-alloc-seg {
       height: 100%;
       transition: width .4s;
     }
+
     .invest-alloc-legend {
       display: flex;
       flex-direction: column;
       gap: 6px;
       margin-top: 12px;
     }
+
     .invest-alloc-row {
       display: flex;
       align-items: center;
       gap: 8px;
       font-size: 12px;
     }
+
     .invest-alloc-dot {
       width: 12px;
       height: 12px;
       border-radius: 3px;
       flex-shrink: 0;
     }
-    .invest-alloc-name { flex: 1; color: var(--text-dim); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .invest-alloc-pct { font-family: var(--font-mono); font-weight: 700; color: var(--text); }
-    .invest-alloc-val { font-family: var(--font-mono); color: var(--text-muted); font-size: 11px; }
+
+    .invest-alloc-name {
+      flex: 1;
+      color: var(--text-dim);
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .invest-alloc-pct {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .invest-alloc-val {
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      font-size: 11px;
+    }
 
     .invest-rate-box {
       display: flex;
@@ -1080,6 +1219,7 @@
       padding: 8px 12px;
       flex-wrap: wrap;
     }
+
     .invest-rate-box input {
       background: var(--surface2);
       border: 1px solid var(--border);
@@ -1091,13 +1231,17 @@
       width: 110px;
       outline: none;
     }
-    .invest-rate-box input:focus { border-color: var(--accent); }
+
+    .invest-rate-box input:focus {
+      border-color: var(--accent);
+    }
 
     .invest-data-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 12px;
     }
+
     .invest-data-table th {
       text-align: left;
       padding: 8px 10px;
@@ -1108,21 +1252,35 @@
       border-bottom: 1px solid var(--border);
       font-weight: 600;
     }
+
     .invest-data-table td {
       padding: 9px 10px;
       border-bottom: 1px solid var(--border);
       color: var(--text-dim);
       font-variant-numeric: tabular-nums;
     }
-    .invest-data-table tr:last-child td { border-bottom: none; }
-    .invest-data-table .num { text-align: right; font-family: var(--font-mono); }
+
+    .invest-data-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .invest-data-table .num {
+      text-align: right;
+      font-family: var(--font-mono);
+    }
+
     .invest-data-table .row-action {
       cursor: pointer;
       color: var(--text-muted);
       padding: 2px 6px;
       border-radius: 4px;
     }
-    .invest-data-table .row-action:hover { color: var(--red); background: var(--red-dim); }
+
+    .invest-data-table .row-action:hover {
+      color: var(--red);
+      background: var(--red-dim);
+    }
+
     .invest-table-wrap {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -1138,11 +1296,13 @@
       gap: 10px;
       margin-bottom: 16px;
     }
+
     .catdetail-summary-item {
       background: var(--surface2);
       border-radius: var(--radius-sm);
       padding: 12px 14px;
     }
+
     .catdetail-summary-label {
       font-size: 9px;
       color: var(--text-muted);
@@ -1150,12 +1310,14 @@
       letter-spacing: .6px;
       margin-bottom: 4px;
     }
+
     .catdetail-summary-value {
       font-family: var(--font-display);
       font-size: 17px;
       font-weight: 700;
       letter-spacing: -.5px;
     }
+
     .catdetail-concentration {
       background: var(--surface2);
       border-radius: var(--radius-sm);
@@ -1171,9 +1333,11 @@
       margin-bottom: 16px;
       border-left: 3px solid var(--accent);
     }
+
     .catdetail-subcat-row {
       padding: 6px 0;
     }
+
     .catdetail-subcat-head {
       display: flex;
       align-items: center;
@@ -1181,6 +1345,7 @@
       font-size: 12px;
       margin-bottom: 5px;
     }
+
     .catdetail-subcat-name {
       flex: 1;
       color: var(--text);
@@ -1190,6 +1355,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+
     .catdetail-subcat-count {
       font-size: 10px;
       color: var(--text-muted);
@@ -1198,6 +1364,7 @@
       border-radius: 10px;
       white-space: nowrap;
     }
+
     .catdetail-subcat-amount {
       font-family: var(--font-mono);
       font-weight: 700;
@@ -1205,6 +1372,7 @@
       font-size: 12px;
       white-space: nowrap;
     }
+
     .catdetail-subcat-pct {
       font-family: var(--font-mono);
       font-size: 11px;
@@ -1213,18 +1381,21 @@
       text-align: right;
       font-weight: 700;
     }
+
     .catdetail-subcat-track {
       height: 5px;
       background: var(--surface);
       border-radius: 4px;
       overflow: hidden;
     }
+
     .catdetail-subcat-fill {
       height: 100%;
       background: var(--accent);
       border-radius: 4px;
       transition: width .4s;
     }
+
     .subcat-pill {
       display: inline-block;
       font-size: 9px;
@@ -1236,6 +1407,7 @@
       vertical-align: middle;
       margin-left: 4px;
     }
+
     .catdetail-concentration-title {
       font-size: 10px;
       color: var(--text-muted);
@@ -1243,6 +1415,7 @@
       letter-spacing: .6px;
       margin-bottom: 10px;
     }
+
     .catdetail-conc-row {
       display: flex;
       align-items: center;
@@ -1250,6 +1423,7 @@
       padding: 5px 0;
       font-size: 12px;
     }
+
     .catdetail-conc-rank {
       width: 18px;
       height: 18px;
@@ -1263,6 +1437,7 @@
       justify-content: center;
       flex-shrink: 0;
     }
+
     .catdetail-conc-name {
       flex: 1;
       color: var(--text-dim);
@@ -1271,6 +1446,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+
     .catdetail-conc-count {
       font-size: 10px;
       color: var(--text-muted);
@@ -1279,6 +1455,7 @@
       border-radius: 10px;
       white-space: nowrap;
     }
+
     .catdetail-conc-amount {
       font-family: var(--font-mono);
       font-weight: 700;
@@ -1286,12 +1463,14 @@
       font-size: 12px;
       white-space: nowrap;
     }
+
     .catdetail-sort-bar {
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
       margin-bottom: 10px;
     }
+
     .catdetail-sort-btn {
       background: var(--surface2);
       border: 1px solid var(--border);
@@ -1304,17 +1483,24 @@
       transition: all .15s;
       -webkit-tap-highlight-color: rgba(124, 106, 245, .25);
     }
-    .catdetail-sort-btn:hover { color: var(--text-dim); border-color: var(--text-muted); }
+
+    .catdetail-sort-btn:hover {
+      color: var(--text-dim);
+      border-color: var(--text-muted);
+    }
+
     .catdetail-sort-btn.active {
       background: var(--accent-glow);
       border-color: var(--accent);
       color: var(--accent);
     }
+
     .catdetail-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 12px;
     }
+
     .catdetail-table th {
       text-align: left;
       padding: 8px 10px;
@@ -1328,13 +1514,21 @@
       user-select: none;
       white-space: nowrap;
     }
-    .catdetail-table th:hover { color: var(--accent); }
-    .catdetail-table th.num { text-align: right; }
+
+    .catdetail-table th:hover {
+      color: var(--accent);
+    }
+
+    .catdetail-table th.num {
+      text-align: right;
+    }
+
     .catdetail-table td {
       padding: 9px 10px;
       border-bottom: 1px solid var(--border);
       color: var(--text-dim);
     }
+
     .catdetail-table td.num {
       text-align: right;
       font-family: var(--font-mono);
@@ -1343,9 +1537,21 @@
       font-weight: 600;
       white-space: nowrap;
     }
-    .catdetail-table tr:last-child td { border-bottom: none; }
-    .catdetail-table .desc-cell { color: var(--text); font-weight: 500; }
-    .catdetail-table .meta-cell { font-size: 10px; color: var(--text-muted); }
+
+    .catdetail-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .catdetail-table .desc-cell {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .catdetail-table .meta-cell {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
     .catdetail-list-wrap {
       max-height: 42vh;
       overflow-y: auto;
@@ -1354,12 +1560,31 @@
     }
 
     @media (max-width: 768px) {
-      .catdetail-summary { grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
-      .catdetail-summary-value { font-size: 13px; }
-      .catdetail-summary-item { padding: 8px 10px; }
-      .catdetail-table { font-size: 11px; }
-      .catdetail-table th, .catdetail-table td { padding: 6px 7px; }
-      .catdetail-list-wrap { max-height: 50vh; }
+      .catdetail-summary {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 6px;
+      }
+
+      .catdetail-summary-value {
+        font-size: 13px;
+      }
+
+      .catdetail-summary-item {
+        padding: 8px 10px;
+      }
+
+      .catdetail-table {
+        font-size: 11px;
+      }
+
+      .catdetail-table th,
+      .catdetail-table td {
+        padding: 6px 7px;
+      }
+
+      .catdetail-list-wrap {
+        max-height: 50vh;
+      }
     }
 
     .invest-add-price-row {
@@ -1370,6 +1595,7 @@
       flex-wrap: wrap;
       border-top: 1px solid var(--border);
     }
+
     .invest-add-price-row input {
       background: var(--surface2);
       border: 1px solid var(--border);
@@ -1380,11 +1606,20 @@
       padding: 7px 10px;
       outline: none;
     }
-    .invest-add-price-row input:focus { border-color: var(--accent); }
+
+    .invest-add-price-row input:focus {
+      border-color: var(--accent);
+    }
 
     @media (max-width: 768px) {
-      .invest-data-table { font-size: 11px; }
-      .invest-data-table th, .invest-data-table td { padding: 6px 7px; }
+      .invest-data-table {
+        font-size: 11px;
+      }
+
+      .invest-data-table th,
+      .invest-data-table td {
+        padding: 6px 7px;
+      }
     }
 
     .mobile-menu-btn {
@@ -2562,10 +2797,164 @@
       gap: 10px
     }
 
+    .cat-group {
+      display: flex;
+      flex-direction: column;
+    }
+
     .cat-row {
       display: flex;
       align-items: center;
       gap: 12px
+    }
+
+    .cat-group+.cat-group {
+      margin-top: 10px;
+    }
+
+    .cat-group .cat-subs+* {
+      margin-top: 0;
+    }
+
+    .cat-expand-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 11px;
+      padding: 0;
+      width: 16px;
+      flex-shrink: 0;
+      transition: transform .2s, color .2s;
+      -webkit-tap-highlight-color: rgba(124, 106, 245, .3);
+    }
+
+    .cat-expand-btn.open {
+      transform: rotate(90deg);
+      color: var(--accent);
+    }
+
+    .cat-expand-btn:hover {
+      color: var(--accent);
+    }
+
+    .cat-expand-spacer {
+      width: 16px;
+      flex-shrink: 0;
+    }
+
+    .cat-sub-badge {
+      font-size: 9px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      padding: 1px 6px;
+      border-radius: 8px;
+      font-weight: 600;
+      vertical-align: middle;
+      margin-left: 2px;
+    }
+
+    .cat-subs {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-top: 8px;
+      padding-left: 4px;
+      animation: catSubsIn .2s ease;
+    }
+
+    @keyframes catSubsIn {
+      from {
+        opacity: 0;
+        transform: translateY(-4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .cat-sub-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cat-sub-spacer {
+      width: 16px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .cat-sub-spacer::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: -8px;
+      bottom: 50%;
+      width: 1px;
+      background: var(--border);
+    }
+
+    .cat-sub-spacer::after {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 50%;
+      width: 6px;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .cat-sub-name {
+      font-size: 11px;
+      color: var(--text-muted);
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cat-sub-count {
+      font-size: 9px;
+      color: var(--text-muted);
+      opacity: .7;
+    }
+
+    .cat-sub-bar-wrap {
+      flex: 2;
+      height: 4px;
+      background: var(--surface2);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .cat-sub-bar {
+      height: 100%;
+      background: var(--accent);
+      opacity: .65;
+      border-radius: 20px;
+      transition: width .4s;
+    }
+
+    .cat-sub-amount {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-weight: 500;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cat-sub-pct {
+      font-size: 9px;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      min-width: 26px;
+      text-align: right;
     }
 
     .cat-name {
@@ -3035,9 +3424,11 @@
       transition: background .15s;
       -webkit-tap-highlight-color: rgba(124, 106, 245, .25);
     }
+
     .bar-row.clickable-cat:hover {
       background: var(--surface2);
     }
+
     .bar-row.clickable-cat:active {
       background: rgba(124, 106, 245, .15);
     }
@@ -4288,7 +4679,7 @@
     <div style="display:flex;align-items:center;gap:10px">
       <button class="mobile-menu-btn" onclick="openMenuSheet()" title="Abrir menú">☰</button>
       <div class="header-logo">
-        <div class="logo-dot"></div>Flujo<span>V17</span>
+        <div class="logo-dot"></div>Flujo<span>V18</span>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden">
@@ -4384,7 +4775,9 @@
         <div class="field"><label>Descripción</label><input id="edit_desc" placeholder="Descripción"></div>
         <div class="field"><label>Empresa / Persona</label><input id="edit_entity" placeholder="Quién"></div>
         <div class="field"><label>Categoría</label><select id="edit_cat"></select></div>
-        <div class="field"><label>Subcategoría <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label><input id="edit_subcat" placeholder="Ej: Mercado, Restaurante..." autocomplete="off"></div>
+        <div class="field"><label>Subcategoría <span
+              style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label><input
+            id="edit_subcat" placeholder="Ej: Mercado, Restaurante..." autocomplete="off"></div>
         <div class="field"><label>Monto (COP)</label><input id="edit_monto" type="number" placeholder="0"></div>
         <div class="field"><label>Fecha</label><input id="edit_date" type="date"></div>
       </div>
@@ -4626,22 +5019,28 @@
   <div class="modal-overlay" id="projectModal">
     <div class="modal" style="max-width:480px">
       <div class="modal-title" id="projectModalTitle">Nuevo proyecto</div>
-      <div class="field" style="margin-bottom:12px"><label>Nombre del proyecto</label><input id="proj_name" placeholder="Ej: Consultoria SPH"></div>
-      <div class="field" style="margin-bottom:12px"><label>Categoría asociada (de tu lista)</label><select id="proj_category"></select></div>
+      <div class="field" style="margin-bottom:12px"><label>Nombre del proyecto</label><input id="proj_name"
+          placeholder="Ej: Consultoria SPH"></div>
+      <div class="field" style="margin-bottom:12px"><label>Categoría asociada (de tu lista)</label><select
+          id="proj_category"></select></div>
       <div class="modal-grid" style="margin-bottom:12px">
         <div class="field"><label>Emoji</label><input id="proj_emoji" placeholder="💼" maxlength="4"></div>
-        <div class="field"><label>Color</label><input id="proj_color" type="color" value="#7c6af5" style="height:38px;padding:4px"></div>
+        <div class="field"><label>Color</label><input id="proj_color" type="color" value="#7c6af5"
+            style="height:38px;padding:4px"></div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-dim);margin-top:6px">
         <input type="checkbox" id="proj_active" checked style="width:auto;margin:0;cursor:pointer">
         <label for="proj_active" style="cursor:pointer;margin:0">Activo</label>
       </div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:14px;line-height:1.5;background:var(--surface2);padding:10px 12px;border-radius:var(--radius-sm)">
-        💡 El proyecto agrupa todos los movimientos que tengan la categoría asociada. Define ingresos y gastos automáticamente desde esa categoría.
+      <div
+        style="font-size:11px;color:var(--text-muted);margin-top:14px;line-height:1.5;background:var(--surface2);padding:10px 12px;border-radius:var(--radius-sm)">
+        💡 El proyecto agrupa todos los movimientos que tengan la categoría asociada. Define ingresos y gastos
+        automáticamente desde esa categoría.
       </div>
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closeModal('projectModal')">Cancelar</button>
-        <button class="btn-danger-outline" id="proj_delete_btn" style="display:none" onclick="deleteProject()">Eliminar</button>
+        <button class="btn-danger-outline" id="proj_delete_btn" style="display:none"
+          onclick="deleteProject()">Eliminar</button>
         <button class="btn-primary" onclick="saveProject()">Guardar</button>
       </div>
     </div>
@@ -4651,7 +5050,8 @@
   <div class="modal-overlay" id="investModal">
     <div class="modal" style="max-width:480px">
       <div class="modal-title" id="investModalTitle">Nuevo activo</div>
-      <div class="field" style="margin-bottom:12px"><label>Nombre del activo</label><input id="inv_asset" placeholder="Ej: VWCE/VWRA, BTC, ICOLCAP"></div>
+      <div class="field" style="margin-bottom:12px"><label>Nombre del activo</label><input id="inv_asset"
+          placeholder="Ej: VWCE/VWRA, BTC, ICOLCAP"></div>
       <div class="modal-grid" style="margin-bottom:12px">
         <div class="field"><label>Tipo</label>
           <select id="inv_type">
@@ -4670,7 +5070,8 @@
       </div>
       <div class="modal-grid" style="margin-bottom:12px">
         <div class="field"><label>Emoji</label><input id="inv_emoji" placeholder="💹" maxlength="4"></div>
-        <div class="field"><label>Color</label><input id="inv_color" type="color" value="#2dd4a0" style="height:38px;padding:4px"></div>
+        <div class="field"><label>Color</label><input id="inv_color" type="color" value="#2dd4a0"
+            style="height:38px;padding:4px"></div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-dim);margin-top:6px">
         <input type="checkbox" id="inv_active" checked style="width:auto;margin:0;cursor:pointer">
@@ -4678,7 +5079,8 @@
       </div>
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closeModal('investModal')">Cancelar</button>
-        <button class="btn-danger-outline" id="inv_delete_btn" style="display:none" onclick="deleteInvestment()">Eliminar</button>
+        <button class="btn-danger-outline" id="inv_delete_btn" style="display:none"
+          onclick="deleteInvestment()">Eliminar</button>
         <button class="btn-primary" onclick="saveInvestment()">Guardar</button>
       </div>
     </div>
@@ -4691,23 +5093,31 @@
       <div id="purchaseAssetLabel" style="font-size:12px;color:var(--text-muted);margin-bottom:14px"></div>
       <div class="modal-grid" style="margin-bottom:12px">
         <div class="field"><label>Fecha</label><input id="pur_date" type="date"></div>
-        <div class="field"><label>Unidades compradas</label><input id="pur_units" type="number" step="any" placeholder="0"></div>
+        <div class="field"><label>Unidades compradas</label><input id="pur_units" type="number" step="any"
+            placeholder="0"></div>
       </div>
       <div class="modal-grid" style="margin-bottom:12px">
-        <div class="field"><label>Precio por unidad (<span id="pur_currency_label">USD</span>)</label><input id="pur_price" type="number" step="any" placeholder="0"></div>
-        <div class="field"><label>Comisión / fee (opcional)</label><input id="pur_fee" type="number" step="any" placeholder="0"></div>
+        <div class="field"><label>Precio por unidad (<span id="pur_currency_label">USD</span>)</label><input
+            id="pur_price" type="number" step="any" placeholder="0"></div>
+        <div class="field"><label>Comisión / fee (opcional)</label><input id="pur_fee" type="number" step="any"
+            placeholder="0"></div>
       </div>
-      <div id="pur_total_preview" style="font-size:12px;color:var(--accent);margin-bottom:12px;font-family:var(--font-mono)"></div>
-      <div class="field" style="margin-bottom:12px"><label>Notas (opcional)</label><input id="pur_notes" placeholder="Ej: entrada DCA #1"></div>
+      <div id="pur_total_preview"
+        style="font-size:12px;color:var(--accent);margin-bottom:12px;font-family:var(--font-mono)"></div>
+      <div class="field" style="margin-bottom:12px"><label>Notas (opcional)</label><input id="pur_notes"
+          placeholder="Ej: entrada DCA #1"></div>
 
       <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px">
         <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-dim)">
           <input type="checkbox" id="pur_create_movement" style="width:auto;margin:0;cursor:pointer">
-          <label for="pur_create_movement" style="cursor:pointer;margin:0">Registrar salida de dinero en una cuenta</label>
+          <label for="pur_create_movement" style="cursor:pointer;margin:0">Registrar salida de dinero en una
+            cuenta</label>
         </div>
         <div id="pur_account_wrap" style="display:none;margin-top:10px">
           <div class="field"><label>Cuenta de origen</label><select id="pur_account"></select></div>
-          <div style="font-size:10px;color:var(--text-muted);margin-top:6px;line-height:1.5">Se creará un movimiento tipo transferencia (salida) — no cuenta como gasto en reportes. Si la moneda del activo es USD, el monto se convierte a COP con la tasa actual.</div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:6px;line-height:1.5">Se creará un movimiento
+            tipo transferencia (salida) — no cuenta como gasto en reportes. Si la moneda del activo es USD, el monto se
+            convierte a COP con la tasa actual.</div>
         </div>
       </div>
 
@@ -4722,7 +5132,7 @@
   <div class="login-screen" id="loginScreen">
     <div class="login-card">
       <div class="login-logo">
-        <div class="logo-dot"></div>Flujo<span>V17</span>
+        <div class="logo-dot"></div>Flujo<span>V18</span>
       </div>
       <div class="login-subtitle">Ingresa tus credenciales para continuar</div>
       <div class="login-field">
@@ -4786,6 +5196,7 @@
       budgetMonth: new Date().toISOString().slice(0, 7),
       pendingMatch: null,
       editRecurringId: null,
+      expandedCats: {},
     };
 
     const MONTH_NAMES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -4922,7 +5333,7 @@
         // Auto-seed: si no existe ningún proyecto y existe la categoría "Consultoria SPH", crearlo
         const hasAny = Object.keys(S.projects).length > 0;
         const hasConsultoriaCat = S.categories.some(c =>
-          c.trim().toLowerCase().replace(/[áéíóú]/g, m => ({á:'a',é:'e',í:'i',ó:'o',ú:'u'}[m])) === 'consultoria sph'
+          c.trim().toLowerCase().replace(/[áéíóú]/g, m => ({ á: 'a', é: 'e', í: 'i', ó: 'o', ú: 'u' }[m])) === 'consultoria sph'
         );
         if (!hasAny && hasConsultoriaCat && !S._projectSeedAttempted) {
           S._projectSeedAttempted = true;
@@ -4933,7 +5344,7 @@
             emoji: '💼',
             active: true,
             createdAt: Date.now()
-          }).catch(() => {});
+          }).catch(() => { });
         }
         renderMain();
       });
@@ -5411,9 +5822,62 @@
         })()}
     ${cats.length ? `
     <div class="section-label" style="margin-bottom:14px">Gastos por categoría</div>
-    <div class="form-card"><div class="cat-list">${cats.map(([cat, amt]) => `<div class="cat-row"><div class="cat-name">${cat}</div><div class="cat-bar-wrap"><div class="cat-bar" style="width:${(amt / maxC * 100).toFixed(1)}%"></div></div><div class="cat-amount">${fmt(amt)}</div></div>`).join('')}</div></div>`
+    <div class="form-card"><div class="cat-list">${cats.map(([cat, amt]) => {
+          // Calcular subcategorías de esta categoría (solo gastos del filtro actual)
+          const subMap = {};
+          let withSub = 0;
+          txs.filter(t => t.tipo === 'salida' && (t.cat || 'Otro') === cat && t.subcat && t.subcat.trim()).forEach(t => {
+            const key = t.subcat.trim();
+            const nk = normalizeText(key);
+            if (!subMap[nk]) subMap[nk] = { label: key, total: 0, count: 0 };
+            subMap[nk].total += (t.monto || 0);
+            subMap[nk].count++;
+            withSub += (t.monto || 0);
+          });
+          const subs = Object.values(subMap).sort((a, b) => b.total - a.total);
+          const sinSub = amt - withSub;
+          const hasSubcats = subs.length > 0;
+          const catId = 'catexp_' + normalizeText(cat).replace(/[^a-z0-9]/g, '_');
+          const isExpanded = S.expandedCats && S.expandedCats[cat];
+          const maxSub = subs.length ? subs[0].total : 1;
+
+          return `<div class="cat-group">
+              <div class="cat-row ${hasSubcats ? 'has-subs' : ''}">
+                ${hasSubcats
+              ? `<button class="cat-expand-btn ${isExpanded ? 'open' : ''}" onclick="toggleCatExpand('${escapeAttr(cat)}')" title="Ver subcategorías">▸</button>`
+              : '<span class="cat-expand-spacer"></span>'}
+                <div class="cat-name" ${hasSubcats ? `onclick="toggleCatExpand('${escapeAttr(cat)}')" style="cursor:pointer"` : ''}>${escapeHTML(cat)}${hasSubcats ? ` <span class="cat-sub-badge">${subs.length}</span>` : ''}</div>
+                <div class="cat-bar-wrap"><div class="cat-bar" style="width:${(amt / maxC * 100).toFixed(1)}%"></div></div>
+                <div class="cat-amount">${fmt(amt)}</div>
+              </div>
+              ${hasSubcats && isExpanded ? `
+                <div class="cat-subs">
+                  ${subs.map(sc => {
+                const pct = amt > 0 ? (sc.total / amt * 100) : 0;
+                return `<div class="cat-sub-row">
+                      <span class="cat-sub-spacer"></span>
+                      <div class="cat-sub-name">${escapeHTML(sc.label)} <span class="cat-sub-count">${sc.count}×</span></div>
+                      <div class="cat-sub-bar-wrap"><div class="cat-sub-bar" style="width:${(sc.total / maxSub * 100).toFixed(1)}%"></div></div>
+                      <div class="cat-sub-amount">${fmt(sc.total)}<span class="cat-sub-pct">${pct.toFixed(0)}%</span></div>
+                    </div>`;
+              }).join('')}
+                  ${sinSub > 0.5 ? `<div class="cat-sub-row" style="opacity:.5">
+                    <span class="cat-sub-spacer"></span>
+                    <div class="cat-sub-name" style="font-style:italic">Sin subcategoría</div>
+                    <div class="cat-sub-bar-wrap"><div class="cat-sub-bar" style="width:${(sinSub / maxSub * 100).toFixed(1)}%;background:var(--text-muted)"></div></div>
+                    <div class="cat-sub-amount">${fmt(sinSub)}<span class="cat-sub-pct">${amt > 0 ? (sinSub / amt * 100).toFixed(0) : 0}%</span></div>
+                  </div>` : ''}
+                </div>` : ''}
+            </div>`;
+        }).join('')}</div></div>`
           : '<div class="empty-state"><div class="emoji">📊</div>Sin datos suficientes aún.</div>'}`;
     }
+
+    window.toggleCatExpand = function (cat) {
+      if (!S.expandedCats) S.expandedCats = {};
+      S.expandedCats[cat] = !S.expandedCats[cat];
+      renderMain();
+    };
 
     // ═══════════════════════════════════════════════
     //  REPORTES MENSUALES — MOTOR COMPLETO
@@ -6727,9 +7191,9 @@
         <div class="catdetail-subcat">
           <div class="catdetail-concentration-title">🏷️ Desglose por subcategoría</div>
           ${subcats.map(sc => {
-            const pct = total > 0 ? (sc.total / total * 100) : 0;
-            const barW = maxSubcat > 0 ? (sc.total / maxSubcat * 100) : 0;
-            return `<div class="catdetail-subcat-row">
+        const pct = total > 0 ? (sc.total / total * 100) : 0;
+        const barW = maxSubcat > 0 ? (sc.total / maxSubcat * 100) : 0;
+        return `<div class="catdetail-subcat-row">
               <div class="catdetail-subcat-head">
                 <span class="catdetail-subcat-name">${escapeHTML(sc.label)}</span>
                 <span class="catdetail-subcat-count">${sc.count}×</span>
@@ -6738,7 +7202,7 @@
               </div>
               <div class="catdetail-subcat-track"><div class="catdetail-subcat-fill" style="width:${barW}%"></div></div>
             </div>`;
-          }).join('')}
+      }).join('')}
           ${sinSubcat > 0.5 ? `<div class="catdetail-subcat-row" style="opacity:.6">
             <div class="catdetail-subcat-head">
               <span class="catdetail-subcat-name" style="font-style:italic">Sin subcategoría</span>
